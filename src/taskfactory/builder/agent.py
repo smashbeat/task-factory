@@ -19,7 +19,8 @@ from .pack import Domain
 REFERENCE_PROMPT = """You maintain the reference solution of a benchmark task. It is `intake.py` in this directory.
 It must implement `policy.md` exactly, for every {item} the generator can draw.
 
-The reference just failed on the {item}s in `failing/`. For each one you have the input (`ID.pdf`, `ID.spec.json`),
+The reference just failed on the {item}s in `failing/`. The {item}s in `passing/` already read correctly and must
+keep reading correctly: a fix that breaks one of them is rejected. For each one you have the input (`ID.pdf`, `ID.spec.json`),
 the expected output (`ID.expected.json`) and the differences the verifier reported (`ID.diff.txt`).
 
 Fix `intake.py` so it reads these correctly. Rules:
@@ -27,13 +28,13 @@ Fix `intake.py` so it reads these correctly. Rules:
   your fix is tested again on a held-out set of {item}s you have not seen, and a fix that only works here fails.
 - Follow `policy.md`. If the expected output looks wrong against the policy, do not change the code to match it:
   write the reason in `DISPUTE.md` and stop. That sends the {item} back to the generator.
-- Run `{check}` to test. It runs your `intake.py` on every failing {item} in the task's own software and prints
-  what still differs. Keep going until it prints no differences, or until you write DISPUTE.md.
+- Run `{check}` to test. It runs your `intake.py` on every {item} in `failing/` and `passing/` in the task's own
+  software and prints what still differs. Keep going until it prints no differences, or until you write DISPUTE.md.
 - Keep the runtime under {limit} seconds per {item}.
 When done, reply with one paragraph: what was wrong and what you changed."""
 
 CHECK = """#!/bin/sh
-# Runs intake.py on every failing item inside the task's software image and prints what differs.
+# Runs intake.py on every failing and passing item inside the task's software image and prints what differs.
 # Lives outside the agent's workspace, read-only; the workspace is mounted read-only and the container has no network.
 docker run --rm --network none -e OMP_THREAD_LIMIT=1 -v "{ws}:/w:ro" -w /w {image} python3 -I -c '
 import json, subprocess, sys
@@ -41,38 +42,49 @@ sys.path.insert(0, "/w")
 import compare
 from pathlib import Path
 bad = 0
-for spec in sorted(Path("failing").glob("*.spec.json")):
-    i = spec.name[: -len(".spec.json")]
+for spec in sorted(Path("failing").glob("*.spec.json")) + sorted(Path("passing").glob("*.spec.json")):
+    i, d = spec.name[: -len(".spec.json")], spec.parent
     out = Path("/tmp") / (i + ".json")
-    p = subprocess.run(["python3", "intake.py", f"failing/{{i}}.pdf", str(spec), str(out)], capture_output=True, text=True, timeout={limit})
+    p = subprocess.run(["python3", "intake.py", str(d / (i + ".pdf")), str(spec), str(out)], capture_output=True, text=True, timeout={limit})
     if p.returncode != 0:
         bad += 1
         print(i, "exit", p.returncode, p.stderr[-600:])
         continue
-    d = compare.compare_files(out, Path("failing") / (i + ".expected.json"))
-    bad += bool(d)
-    print(i, "OK" if not d else "\\n  ".join([""] + d[:15]))
+    diff = compare.compare_files(out, d / (i + ".expected.json"))
+    bad += bool(diff)
+    if diff or d.name == "failing":
+        print(i, "(was passing, now broken)" if diff and d.name == "passing" else "",
+              "OK" if not diff else "\\n  ".join([""] + diff[:15]))
 print("all right" if not bad else f"{{bad}} still differ")
 '
 """
 
 
-def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: int = 120,
-                  model: str | None = None, budget_usd: float = 5.0) -> dict:
+def make_workspace(pack: Domain, build: Path, attempt: int, start: Path | None) -> tuple[Path, list[str]]:
+    """The agent's workspace: the file to fix (the latest candidate, else the pack's reference), the policy, the
+    failing items with their differences, and the passing items as a regression set."""
     build = Path(build)
     # The workspace lives outside the build tree, so nothing near it holds hidden answers.
     ws = Path(tempfile.mkdtemp(prefix=f"tf-fix-reference-{attempt}-"))
-    (ws / "failing").mkdir()
-    shutil.copy(pack.root / "task" / "solution" / "intake.py", ws / "intake.py")
+    shutil.copy(start or pack.root / "task" / "solution" / "intake.py", ws / "intake.py")
     shutil.copy(pack.root / "task" / "tests" / "compare.py", ws / "compare.py")
     shutil.copy(build / "policy.md", ws / "policy.md")
-    failing = [r for r in json.loads((build / "reference.json").read_text()) if not r["ok"]]
-    for r in failing:
-        i = r["id"]
-        shutil.copy(build / "pdf" / f"{i}.pdf", ws / "failing" / f"{i}.pdf")
-        shutil.copy(build / "specs" / f"{i}.json", ws / "failing" / f"{i}.spec.json")
-        shutil.copy(build / "truth" / f"{i}.json", ws / "failing" / f"{i}.expected.json")
-        (ws / "failing" / f"{i}.diff.txt").write_text("\n".join(r["diffs"]))
+    results = json.loads((build / "reference.json").read_text())
+    for r in results:
+        i, d = r["id"], ws / ("passing" if r["ok"] else "failing")
+        d.mkdir(exist_ok=True)
+        shutil.copy(build / "pdf" / f"{i}.pdf", d / f"{i}.pdf")
+        shutil.copy(build / "specs" / f"{i}.json", d / f"{i}.spec.json")
+        shutil.copy(build / "truth" / f"{i}.json", d / f"{i}.expected.json")
+        if not r["ok"]:
+            (d / f"{i}.diff.txt").write_text("\n".join(r["diffs"]))
+    return ws, [r["id"] for r in results if not r["ok"]]
+
+
+def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: int = 120,
+                  model: str | None = None, budget_usd: float = 5.0, start: Path | None = None) -> dict:
+    build = Path(build)
+    ws, failing = make_workspace(pack, build, attempt, start)
     checker = Path(tempfile.mkdtemp(prefix=f"tf-checker-{attempt}-"))
     check = checker / "check.sh"
     check.write_text(CHECK.format(image=image, limit=limit, ws=ws.resolve()))
@@ -100,7 +112,7 @@ def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: in
     disputed = (ws / "DISPUTE.md").exists()
     return {
         "workspace": str(ws),
-        "failing": [r["id"] for r in failing],
+        "failing": failing,
         "summary": reply.get("result", ""),
         "cost_usd": reply.get("total_cost_usd"),
         "error": bool(reply.get("is_error")) or p.returncode != 0 or tampered,

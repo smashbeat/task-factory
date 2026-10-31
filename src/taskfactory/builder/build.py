@@ -153,7 +153,7 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
             run.verdict, run.stopped_at = "stopped", "reference"
             return
         # The judge sends the failure back to the reference; an authoring agent fixes it in a sandbox.
-        res = fix_reference(pack, out, docker.image(pack, "ref"), attempt, model=fix_model)
+        res = fix_reference(pack, out, docker.image(pack, "ref"), attempt, model=fix_model, start=candidate)
         run.log.append({"stage": "fix-reference", "attempt": attempt, "status": "fail" if res["error"] else "info",
                         "send_back": "pack" if res["disputed"] else None,
                         "findings": [{"level": "info", "text": res["summary"][:1500]}] +
