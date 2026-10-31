@@ -129,6 +129,9 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
     if g.status == "fail":
         run.verdict, run.stopped_at = "stopped", "render"
         return
+    ref_file = pack.root / "task" / "solution" / "intake.py"
+    original = ref_file.read_text()
+    fixed = False
     for attempt in range(RETRIES + 1):
         docker.reference(pack, out)
         g = reference_gate(out)
@@ -148,8 +151,34 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
         if res["disputed"] or res["error"]:
             run.verdict, run.stopped_at = "stopped", "reference"
             return
-        shutil.copy(res["fixed_file"], pack.root / "task" / "solution" / "intake.py")
+        shutil.copy(res["fixed_file"], ref_file)
+        fixed = True
+    if fixed and not _holdout(run, pack, out):
+        ref_file.write_text(original)
+        run.verdict, run.stopped_at = "stopped", "holdout"
+        return
     name = f"{pack.name}-s{run.seed}"
     assemble(pack, out, task_dir or out / "task" / name, name)
     run.verdict = "task assembled, ready for trials"
     (out / "build.json").write_text(json.dumps({"verdict": run.verdict, "log": run.log}, indent=1))
+
+
+HOLDOUT_OFFSET = 1000
+
+
+def _holdout(run: BuildRun, pack: Domain, out: Path) -> bool:
+    """A fixed reference must also pass on a seed the fixing agent never saw."""
+    from . import docker
+    from .gates import reference_gate
+
+    seed = run.seed + HOLDOUT_OFFSET
+    hold = out / f"holdout-{seed}"
+    plan = make_plan(pack, seed)
+    corpus = make_corpus(pack, plan, seed)
+    _write(hold, pack, plan, corpus, BuildRun(pack.name, seed))
+    docker.render(pack, hold)
+    docker.reference(pack, hold)
+    g = reference_gate(hold)
+    g.gate = "holdout"
+    _record(run, "holdout", 0, g)
+    return g.status != "fail"
