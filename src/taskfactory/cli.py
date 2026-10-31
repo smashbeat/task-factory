@@ -26,6 +26,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--seed", type=int, default=1)
     b.add_argument("--out", type=Path, required=True)
     b.add_argument("--docker", action="store_true", help="also render, run the reference and assemble the Harbor task")
+    b.add_argument("--fix", action="store_true", help="let an authoring agent fix what the reference gate sends back")
     a = ap.parse_args(argv)
     if a.cmd == "build":
         return _build(a)
@@ -48,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
 def _build(a) -> int:
     from .builder.build import build
 
-    run = build(a.pack, a.seed, a.out, docker=a.docker)
+    run = build(a.pack, a.seed, a.out, docker=a.docker, fix=a.fix)
     for entry in run.log:
         print(f"[{entry['status']:4}] {entry['stage']} (attempt {entry['attempt']})")
         for x in entry["findings"]:

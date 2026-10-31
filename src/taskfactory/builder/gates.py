@@ -143,9 +143,10 @@ def reference_gate(build_dir, limit: float = 120.0, headroom: float = 0.5) -> Ga
     wrong = [r for r in rs if not r["ok"]]
     for r in wrong:
         f.append(Finding("fail", f"{r['id']}: " + "; ".join(r["diffs"][:3])))
-    slow = max((r["seconds"] for r in rs), default=0)
+    timed = [r for r in rs if "seconds_parallel" in r] or rs
+    slow = max((r["seconds"] for r in timed), default=0)
     if slow > limit * headroom:
         f.append(Finding("warn", f"slowest item took {slow:.0f} s of the {limit:.0f} s limit"))
     if not wrong:
-        f.append(Finding("info", f"reference right on all {len(rs)} items; slowest {slow:.0f} s"))
+        f.append(Finding("info", f"reference right on all {len(rs)} items; slowest {slow:.0f} s alone, against a {limit:.0f} s limit"))
     return _result("reference", "Reference: can the task be done?", f, "reference")

@@ -78,7 +78,7 @@ def _item(i, corpus: Corpus) -> dict:
 
 
 def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, docker: bool = False,
-          task_dir: Path | None = None) -> BuildRun:
+          task_dir: Path | None = None, fix: bool = False) -> BuildRun:
     pack = load_domain(pack_dir)
     run = BuildRun(pack.name, seed)
     g = pack_gate(pack)
@@ -109,14 +109,17 @@ def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, d
         run.verdict = "ready to render, with warnings" if warned else "ready to render"
         _write(Path(out), pack, plan, corpus, run)
         if docker:
-            _docker_stages(run, pack, Path(out), task_dir)
+            _docker_stages(run, pack, Path(out), task_dir, fix)
         return run
     run.verdict = "stopped"
     return run
 
 
-def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None) -> None:
+def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None, fix: bool = False) -> None:
+    import shutil
+
     from . import docker
+    from .agent import fix_reference
     from .assemble import assemble
     from .gates import reference_gate, render_gate
 
@@ -126,12 +129,26 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
     if g.status == "fail":
         run.verdict, run.stopped_at = "stopped", "render"
         return
-    docker.reference(pack, out)
-    g = reference_gate(out)
-    _record(run, "reference", 0, g)
-    if g.status == "fail":
-        run.verdict, run.stopped_at = "stopped", "reference"
-        return
+    for attempt in range(RETRIES + 1):
+        docker.reference(pack, out)
+        g = reference_gate(out)
+        _record(run, "reference", attempt, g)
+        if g.status != "fail":
+            break
+        if not fix or attempt == RETRIES:
+            run.verdict, run.stopped_at = "stopped", "reference"
+            return
+        # The judge sends the failure back to the reference; an authoring agent fixes it in a sandbox.
+        res = fix_reference(pack, out, docker.image(pack, "ref"), attempt)
+        run.log.append({"stage": "fix-reference", "attempt": attempt, "status": "fail" if res["error"] else "info",
+                        "send_back": "pack" if res["disputed"] else None,
+                        "findings": [{"level": "info", "text": res["summary"][:1500]}] +
+                                    ([{"level": "warn", "text": "DISPUTE: " + res["dispute"][:1500]}] if res["disputed"] else []),
+                        "cost_usd": res["cost_usd"]})
+        if res["disputed"] or res["error"]:
+            run.verdict, run.stopped_at = "stopped", "reference"
+            return
+        shutil.copy(res["fixed_file"], pack.root / "task" / "solution" / "intake.py")
     name = f"{pack.name}-s{run.seed}"
     assemble(pack, out, task_dir or out / "task" / name, name)
     run.verdict = "task assembled, ready for trials"

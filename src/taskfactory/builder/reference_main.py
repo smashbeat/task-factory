@@ -5,6 +5,7 @@ python3 -I reference_main.py TASK_TESTS_DIR SOLUTION_FILE BUILD_DIR [WORKERS]
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -14,9 +15,10 @@ from pathlib import Path
 
 TESTS = SOL = BUILD = None
 LIMIT = 120
+PARALLEL_CAP = 900  # contention only: the real limit is checked alone afterwards
 
 
-def _one(item_id: str) -> dict:
+def _one(item_id: str, cap: float = PARALLEL_CAP) -> dict:
     sys.path.insert(0, str(TESTS))
     import compare
 
@@ -27,7 +29,8 @@ def _one(item_id: str) -> dict:
         t0 = time.time()
         try:
             p = subprocess.run(["python3", str(SOL), str(BUILD / "pdf" / f"{item_id}.pdf"), str(spec), str(out)],
-                               capture_output=True, text=True, timeout=LIMIT)
+                               capture_output=True, text=True, timeout=cap,
+                               env={**os.environ, "OMP_THREAD_LIMIT": "1"})
             rc, err = p.returncode, p.stderr[-400:]
         except subprocess.TimeoutExpired:
             rc, err = 137, "killed at the time limit"
@@ -48,8 +51,15 @@ def main() -> None:
     ids = [i["id"] for i in m["samples"] + m["hidden"]]
     with Pool(workers) as pool:
         results = pool.map(_one, ids)
+    # Time the slowest items again one at a time, as the verifier runs them, against the real limit.
+    by_id = {r["id"]: r for r in results}
+    for r in sorted(results, key=lambda r: -r["seconds"])[:3]:
+        alone = _one(r["id"], cap=LIMIT)
+        by_id[r["id"]] = {**alone, "seconds_parallel": r["seconds"]}
+    results = [by_id[i] for i in ids]
     (BUILD / "reference.json").write_text(json.dumps(results, indent=1, ensure_ascii=False))
-    print(f"reference right on {sum(r['ok'] for r in results)} of {len(results)}; slowest {max(r['seconds'] for r in results):.0f} s")
+    alone = [r for r in results if "seconds_parallel" in r]
+    print(f"reference right on {sum(r['ok'] for r in results)} of {len(results)}; slowest alone {max(r['seconds'] for r in alone):.0f} s")
 
 
 if __name__ == "__main__":
