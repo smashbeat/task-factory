@@ -1,0 +1,134 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "L114977",
+   "manufacture_date": "2026-05-26",
+   "retest_date": null,
+   "expiry_date": "2027-11-17",
+   "results": [
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.02",
+     "unit": "%",
+     "specification": "≤ 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.51",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.12",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.25",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.028",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.6",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "7.55",
+     "unit": null,
+     "specification": "5.5 ~ 7.5"
+    }
+   ],
+   "disposition": "reject"
+  },
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "L562397",
+   "manufacture_date": "2026-07-30",
+   "retest_date": "2028-01-21",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.05",
+     "unit": "%",
+     "specification": "≤ 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.05",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.13",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.18",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.050",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "35",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.4",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.7",
+     "unit": null,
+     "specification": "5.5 ~ 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

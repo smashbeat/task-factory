@@ -1,0 +1,110 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "L123520",
+   "manufacture_date": "2026-08-28",
+   "retest_date": null,
+   "expiry_date": "2028-08-27",
+   "results": [
+    {
+     "test": "Description",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "/"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.23",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic",
+     "result": "0.28",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Negative/10 g"
+    },
+    {
+     "test": "Salmonella (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Negative/25 g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "98.1",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.56",
+     "unit": "g/mL",
+     "specification": "0.45 ~ 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B152291",
+   "manufacture_date": "2026-05-10",
+   "retest_date": null,
+   "expiry_date": "2027-11-01",
+   "results": [
+    {
+     "test": "Description",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "/"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.05",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic",
+     "result": "0.29",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Negative/10 g"
+    },
+    {
+     "test": "Salmonella (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Negative/25 g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "98.6",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.54",
+     "unit": "g/mL",
+     "specification": "0.45 ~ 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

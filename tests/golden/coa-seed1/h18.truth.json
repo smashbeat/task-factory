@@ -1,0 +1,75 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "B840177",
+   "manufacture_date": "2026-04-07",
+   "retest_date": "2027-04-07",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "98.9",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.05",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "1.60",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.03",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.027",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "<100",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.55",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.7",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

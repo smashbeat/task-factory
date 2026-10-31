@@ -1,0 +1,69 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B192277",
+   "manufacture_date": "2026-04-12",
+   "retest_date": "2027-04-12",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.5",
+     "unit": "%",
+     "specification": "98.0 ~ 101.5 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.36",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "1.60",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.041",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "40",
+     "unit": "cfu/g",
+     "specification": "≤ 1000 cfu/g"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Negative/10 g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Negative/25 g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.1",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

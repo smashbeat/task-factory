@@ -1,0 +1,57 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "P639734",
+   "manufacture_date": "2026-08-24",
+   "retest_date": "2028-08-23",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "550",
+     "unit": "ppb",
+     "specification": "max. 500 ppb"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.058",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "max. 1000 cfu/g"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.8",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "lots": [
+  {
+   "material": "Pyridoxine Hydrochloride USP",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "L539463",
+   "manufacture_date": "2024-05-22",
+   "retest_date": "2026-10-13",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white free-flowing powder with faint odour",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.33",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.13",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.38",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.18",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.059",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.3",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

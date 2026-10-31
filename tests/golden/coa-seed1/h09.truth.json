@@ -1,0 +1,163 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "L804324",
+   "manufacture_date": "2026-07-12",
+   "retest_date": null,
+   "expiry_date": "2027-07-12",
+   "results": [
+    {
+     "test": "LOD",
+     "result": "0.21",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.06",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Lead",
+     "result": "ND",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.39",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Mercury",
+     "result": "0.031",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "35",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.59",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "incomplete"
+  },
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "P135304",
+   "manufacture_date": "2026-02-19",
+   "retest_date": "2027-02-19",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "LOD",
+     "result": "0.32",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.08",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Lead",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.39",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Mercury",
+     "result": "0.018",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.61",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "incomplete"
+  },
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B422203",
+   "manufacture_date": "2026-04-23",
+   "retest_date": null,
+   "expiry_date": "2027-10-15",
+   "results": [
+    {
+     "test": "LOD",
+     "result": "0.28",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.06",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Lead",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.26",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Mercury",
+     "result": "0.020",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.62",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "incomplete"
+  }
+ ]
+}

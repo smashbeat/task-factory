@@ -1,0 +1,163 @@
+{
+ "lots": [
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B140936",
+   "manufacture_date": "2026-06-11",
+   "retest_date": "2028-06-10",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identity (FTIR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.31",
+     "unit": "%",
+     "specification": "≤ 0.5 %"
+    },
+    {
+     "test": "Lead",
+     "result": "1040",
+     "unit": "ppb",
+     "specification": "≤ 1000 ppb"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.30",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium",
+     "result": "0.24",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.042",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Mesh (80)",
+     "result": "96.1",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "L373360",
+   "manufacture_date": "2026-04-29",
+   "retest_date": "2027-04-29",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identity (FTIR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.12",
+     "unit": "%",
+     "specification": "≤ 0.5 %"
+    },
+    {
+     "test": "Lead",
+     "result": "480",
+     "unit": "ppb",
+     "specification": "≤ 1000 ppb"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.43",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium",
+     "result": "0.13",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.018",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Mesh (80)",
+     "result": "97.6",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "P870167",
+   "manufacture_date": "2026-03-31",
+   "retest_date": "2027-03-31",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identity (FTIR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.34",
+     "unit": "%",
+     "specification": "≤ 0.5 %"
+    },
+    {
+     "test": "Lead",
+     "result": "490",
+     "unit": "ppb",
+     "specification": "≤ 1000 ppb"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.29",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium",
+     "result": "0.13",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.053",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Mesh (80)",
+     "result": "96.1",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

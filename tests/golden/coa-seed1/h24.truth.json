@@ -1,0 +1,75 @@
+{
+ "lots": [
+  {
+   "material": "Ferrous Bisglycinate Chelate",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "B916044",
+   "manufacture_date": "2026-06-26",
+   "retest_date": "2027-06-26",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.06",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "Not detected",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.30",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.01",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.025",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "<100",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.65",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.7",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

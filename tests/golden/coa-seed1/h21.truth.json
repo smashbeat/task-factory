@@ -1,0 +1,63 @@
+{
+ "lots": [
+  {
+   "material": "Magnesium Bisglycinate",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "P352299",
+   "manufacture_date": "2026-04-22",
+   "retest_date": null,
+   "expiry_date": "2027-04-22",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.12",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.20",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.007",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.59",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "7.54",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

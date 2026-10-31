@@ -1,0 +1,75 @@
+{
+ "lots": [
+  {
+   "material": "Magnesium Bisglycinate",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "P192403",
+   "manufacture_date": "2026-05-15",
+   "retest_date": "2028-05-14",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.8",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.40",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.02",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "BLQ",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.23",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.06",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "94.96",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

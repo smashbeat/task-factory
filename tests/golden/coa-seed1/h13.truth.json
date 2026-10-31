@@ -1,0 +1,75 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B884869",
+   "manufacture_date": "2026-04-26",
+   "retest_date": "2027-04-26",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Description",
+     "result": "White crystalline powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "101.0",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "LOD",
+     "result": "0.11",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.06",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Arsenic",
+     "result": "0.54",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.05",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury",
+     "result": "0.008",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "<100",
+     "unit": "cfu/g",
+     "specification": "max. 1000 cfu/g"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.59",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.5",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

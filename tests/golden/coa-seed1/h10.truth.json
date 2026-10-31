@@ -1,0 +1,146 @@
+{
+ "lots": [
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B184849",
+   "manufacture_date": "2024-06-24",
+   "retest_date": "2027-10-20",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.22",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.02",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.22",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "230",
+     "unit": "cfu/g",
+     "specification": "max. 1000 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "97.6",
+     "unit": "%",
+     "specification": "min. 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.66",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.5",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "L829636",
+   "manufacture_date": "2026-08-15",
+   "retest_date": "2028-08-14",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White crystalline powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.16",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.01",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.21",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "40",
+     "unit": "cfu/g",
+     "specification": "max. 1000 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.7",
+     "unit": "%",
+     "specification": "min. 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.63",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.8",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

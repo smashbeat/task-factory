@@ -1,0 +1,63 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "B598635",
+   "manufacture_date": "2026-04-24",
+   "retest_date": "2027-04-24",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.7",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.06",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.07",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.3",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.5",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

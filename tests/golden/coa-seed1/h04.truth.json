@@ -1,0 +1,57 @@
+{
+ "lots": [
+  {
+   "material": "Ascorbic Acid USP",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "L847976",
+   "manufacture_date": "2026-06-17",
+   "retest_date": "2027-06-17",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Description",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.19",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Arsenic",
+     "result": "0.35",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.012",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "TYMC",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Mesh (80)",
+     "result": "94.96",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

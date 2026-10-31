@@ -1,0 +1,146 @@
+{
+ "lots": [
+  {
+   "material": "Magnesium Bisglycinate",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B322537",
+   "manufacture_date": "2026-04-11",
+   "retest_date": null,
+   "expiry_date": "2027-10-03",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.7",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.07",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "1040",
+     "unit": "ppb",
+     "specification": "max. 1000 ppb"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.07",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.037",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.51",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "5.9",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Magnesium Bisglycinate",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "L414910",
+   "manufacture_date": "2026-08-30",
+   "retest_date": "2028-02-21",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.0",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.30",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "460",
+     "unit": "ppb",
+     "specification": "max. 1000 ppb"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.26",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.045",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.50",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.1",
+     "unit": null,
+     "specification": "5.5 - 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

@@ -1,0 +1,69 @@
+{
+ "lots": [
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "B443916",
+   "manufacture_date": "2026-05-25",
+   "retest_date": "2027-11-16",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identity (FTIR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.7",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Sulfated ash",
+     "result": "0.04",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "1.04",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Arsenic",
+     "result": "0.27",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.26",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "E. coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Mesh (80)",
+     "result": "98.4",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

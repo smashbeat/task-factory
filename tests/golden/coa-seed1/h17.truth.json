@@ -1,0 +1,122 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "L631070",
+   "manufacture_date": "2026-08-23",
+   "retest_date": "2027-08-23",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Lead",
+     "result": "1.04",
+     "unit": "mg/kg",
+     "specification": "NMT 1 mg/kg"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.28",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium",
+     "result": "0.20",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.008",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "TAMC",
+     "result": "<100",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "Salmonella (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "98.6",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "P583349",
+   "manufacture_date": "2026-03-20",
+   "retest_date": "2027-03-20",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Lead",
+     "result": "0.10",
+     "unit": "mg/kg",
+     "specification": "NMT 1 mg/kg"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.57",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium",
+     "result": "0.21",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.060",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "TAMC",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "35",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "Salmonella (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "99.7",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

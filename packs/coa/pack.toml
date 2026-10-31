@@ -1,0 +1,254 @@
+# coa-intake domain pack. Rules and features are data; the policy, the sample plan and the attribution
+# profile are all produced from this file.
+
+[pack]
+name = "coa-intake"
+item = "certificate"
+unit = "lot"
+module = "pack"
+samples_max = 14
+hidden = 30
+units_max = 3
+styles = ["hengxin", "nordvik", "pradesh", "bluewater"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated", "form", "form_mismatch"]
+# routes whose pages must be read from pixels or reconstructed text
+reading_routes = ["outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+route_rules = { form_mismatch = [2], scan_wrong_ocr = [2], scan_rotated = [2] }
+
+[[rule]]
+id = 1
+title = "Scope"
+text = """One certificate of analysis covers one material from one supplier and reports one or more lots on one or more pages. The house specification (SPEC.json) gives the material, the receipt date of the delivery, and the tests that decide disposition. Each test has the names suppliers use for it, a limit, and a unit."""
+mutant = false
+
+[[rule]]
+id = 2
+title = "What a value is"
+text = """A value is what a reader sees on the printed page, read upright. Everything else in the file is an aid to reading, and where it disagrees with the print, the print is right. Everything that prints is part of the page, and a correction placed visibly over a printed value replaces it."""
+mutant = false
+
+[[rule]]
+id = 3
+title = "Identity fields, per lot"
+text = """`material`: the product name as printed. `supplier`: the supplier name printed in the header. `lot_number`: the lot or batch number as printed, without its label. `manufacture_date`, and one of `retest_date` or `expiry_date`, whichever the certificate prints; the other is null. Dates are output as ISO 8601 (YYYY-MM-DD) whatever format the page prints; printed month names are English, and printed numeric dates are ISO. A label may point to where its value is printed elsewhere on the page; the value is wherever the page prints it."""
+mutant = true
+
+[[rule]]
+id = 4
+title = "Results, per lot"
+text = """One row per test printed for that lot, in page order, each with `test` (the test name as printed), `result` (the result as printed), `unit` (the unit printed with the result, in the same cell or in a column of its own; null when none is printed), and `specification` (the supplier's specification text as printed for that test, or null). Strings are copied as printed. The verifier compares strings after Unicode NFKC normalisation, case folding and removal of all whitespace, so spacing and capitalisation do not matter and every other character does. A value that wraps onto a second line is one value. A unit printed in the same cell as the result is separated from it. A mark that ties a value to a note (such as * or a superscript letter) is not part of the value. Tests printed on the certificate but absent from the house specification are still reported."""
+mutant = true
+
+[[rule]]
+id = 5
+title = "Revisions"
+text = """A certificate may carry numbered revisions of some of its values, on a revision page or in an amendment block. For each lot, every field and result takes its value from the highest-numbered revision that states it, and from the original otherwise. A revised result stays in the place of the row it revises."""
+mutant = true
+
+[[rule]]
+id = 6
+title = "Matching and comparing"
+text = """A printed test matches a house test when its name equals one of the house test's names under the rule 4 comparison. A numeric result is a decimal number in the unit printed with it, or in the house unit when none is printed. Before comparing, it is converted to the house unit with this table, then rounded half up to the number of decimal places the house limit is written with: 1 ppm = 1 mg/kg = 1 µg/g; 1 ppb = 1 µg/kg = 0.001 ppm; 1 % = 10 000 ppm. A result in a unit that is not the house unit and cannot be converted with the table counts as no result."""
+mutant = true
+
+[[rule]]
+id = 7
+title = "Meeting a limit"
+text = """A numeric result meets `max` when it is at most the limit, `min` when at least, `range` when within both ends. A "less than" result (`<x`) meets a `max` limit when x, converted and rounded, is at most the limit, and meets no `min` or `range` limit. A result of ND, Not detected, <LOQ or BLQ counts as "less than" the limit of quantitation the certificate prints for that test (in its own column or in a note naming the test, in the unit printed there); when the certificate prints none, it counts as no result for any limit other than `absent` and `report`. A `conforms` limit is met by a result that, ignoring case, starts with "conform" or "compl" or is "pass" or "passes". An `absent` limit is met by a result that, ignoring case, starts with "absent", "not detected", "nd" or "negative". A `report` limit is met by any result."""
+mutant = true
+
+[[rule]]
+id = 8
+title = "Disposition, per lot"
+text = """The lot is `reject` when its retest or expiry date is on or before the receipt date, or when any house test has a result that does not meet its limit; otherwise `incomplete` when any house test has no result; otherwise `accept`."""
+mutant = true
+
+[[rule]]
+id = 9
+title = "Output"
+text = """One JSON object `{"lots": [...]}` with one entry per lot in the order the lot numbers first appear on the certificate. Each entry has exactly the keys `material`, `supplier`, `lot_number`, `manufacture_date`, `retest_date`, `expiry_date`, `results`, `disposition`; each result row has exactly `test`, `result`, `unit`, `specification`. Missing values are JSON null."""
+mutant = false
+# Features. rules: the policy rules an item with this feature exercises. says: what an agent that breaks them does.
+# routes: where the feature can be rendered (default: every route). units: most lots it allows.
+# requires_any: at least one of these must be on the item. excludes: none of these may be.
+# kind = "reading" marks a feature that only makes the page harder to read.
+
+[[feature]]
+name = "alias"
+rules = [6]
+says = "did not match a supplier's test name to the house test"
+
+[[feature]]
+name = "units"
+rules = [6]
+says = "compared a result in another unit without converting it"
+
+[[feature]]
+name = "units_bad"
+rules = [6]
+says = "converted a unit the table cannot convert"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "round_metal"
+rules = [6]
+says = "compared a metal result before rounding to the limit's places"
+
+[[feature]]
+name = "round_min"
+rules = [6]
+says = "compared a minimum before rounding"
+excludes = ["round_range"]
+
+[[feature]]
+name = "round_range"
+rules = [6]
+says = "compared a range before rounding"
+
+[[feature]]
+name = "round_fail"
+rules = [6]
+says = "rounded the wrong way at the limit"
+requires_any = ["round_metal", "round_min", "round_range"]
+
+[[feature]]
+name = "nd_loq_col"
+rules = [7]
+says = "did not take the LOQ from its column"
+excludes = ["nd_loq_note", "nd_no_loq", "nd_loq_high"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "nd_loq_note"
+rules = [7]
+says = "did not take the LOQ from the note naming the test"
+excludes = ["nd_no_loq", "nd_loq_high"]
+
+[[feature]]
+name = "nd_no_loq"
+rules = [7]
+says = "counted ND as meeting the limit with no LOQ printed"
+excludes = ["nd_loq_high"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "nd_loq_high"
+rules = [7]
+says = "accepted ND although the LOQ is above the limit"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "marker"
+rules = [4]
+says = "kept the footnote mark with the value, so it was never converted"
+
+[[feature]]
+name = "fail"
+rules = [8]
+says = "accepted a lot with a failing result"
+
+[[feature]]
+name = "missing"
+rules = [8]
+says = "accepted a lot with a missing result"
+
+[[feature]]
+name = "wrap"
+rules = [4]
+says = "split a wrapped value into two"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "expired"
+rules = [8]
+says = "accepted a lot past its retest or expiry date"
+excludes = ["rev_extends"]
+
+[[feature]]
+name = "stamp_lot"
+rules = [3]
+says = "missed the lot number printed only in a stamp"
+excludes = ["stamp_retest"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+units = 2
+
+[[feature]]
+name = "stamp_retest"
+rules = [3, 8]
+says = "ignored the retest date stamped on the page"
+excludes = ["rev_extends"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+units = 2
+
+[[feature]]
+name = "rev_result"
+rules = [5]
+says = "kept the original value instead of the highest revision"
+requires_any = ["rev_block", "rev_page"]
+excludes = ["rev_twice"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "rev_twice"
+rules = [5, 8]
+says = "applied a superseded revision"
+requires_any = ["rev_block", "rev_page"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "rev_extends"
+rules = [5, 8]
+says = "rejected a lot whose retest date a revision extended"
+requires_any = ["rev_block", "rev_page"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "rev_block"
+rules = [5]
+says = "missed the amendment block"
+requires_any = ["rev_result", "rev_twice", "rev_extends"]
+excludes = ["rev_page"]
+
+[[feature]]
+name = "rev_page"
+rules = [5]
+says = "counted the revision page as a lot, or appended its rows"
+requires_any = ["rev_result", "rev_twice", "rev_extends"]
+
+[[feature]]
+name = "continuation"
+rules = [1, 9]
+says = "counted the continuation page as another lot"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "a4_continuation"
+rules = [9]
+says = "split one lot into two entries across a page-size change"
+requires_any = ["continuation"]
+
+[[feature]]
+name = "scramble"
+rules = [4]
+says = "reported rows in content-stream order instead of page order"
+routes = ["digital", "distilled"]
+
+[[feature]]
+name = "watermark"
+rules = [2]
+says = "read the watermark into a value"
+kind = "reading"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "white_decoy"
+rules = [2]
+says = "reported invisible text as a lot"
+routes = ["digital", "distilled"]
+
+[[feature]]
+name = "annot_correction"
+rules = [2]
+says = "kept the printed value under a visible correction"
+routes = ["digital"]
+units = 1

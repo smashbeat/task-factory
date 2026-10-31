@@ -1,0 +1,122 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "P994300",
+   "manufacture_date": "2026-04-27",
+   "retest_date": null,
+   "expiry_date": "2027-10-19",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "/"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.05",
+     "unit": "%",
+     "specification": "≤ 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "BLQ",
+     "unit": null,
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.15",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.035",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Negative/25 g"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B144322",
+   "manufacture_date": "2026-07-16",
+   "retest_date": null,
+   "expiry_date": "2027-07-16",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "/"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.02",
+     "unit": "%",
+     "specification": "≤ 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "ND",
+     "unit": null,
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.24",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.034",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "35",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Negative/25 g"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

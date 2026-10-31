@@ -1,0 +1,146 @@
+{
+ "lots": [
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "B685569",
+   "manufacture_date": "2026-08-19",
+   "retest_date": null,
+   "expiry_date": "2027-08-19",
+   "results": [
+    {
+     "test": "Description",
+     "result": "White to off-white crystalline powder, odourless",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "LOD",
+     "result": "0.12",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.03",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Lead",
+     "result": "0.60",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "35",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "E. coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.57",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.9",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "P469606",
+   "manufacture_date": "2026-08-26",
+   "retest_date": null,
+   "expiry_date": "2027-08-26",
+   "results": [
+    {
+     "test": "Description",
+     "result": "White to off-white crystalline powder, odourless",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "LOD",
+     "result": "0.13",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.08",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Lead",
+     "result": "0.38",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "NMT 100 cfu/g"
+    },
+    {
+     "test": "E. coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density (untapped)",
+     "result": "0.66",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.0",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

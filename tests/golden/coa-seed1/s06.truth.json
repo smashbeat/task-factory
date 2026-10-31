@@ -1,0 +1,69 @@
+{
+ "lots": [
+  {
+   "material": "Magnesium Bisglycinate",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B629499",
+   "manufacture_date": "2026-07-22",
+   "retest_date": null,
+   "expiry_date": "2028-07-21",
+   "results": [
+    {
+     "test": "Loss on drying",
+     "result": "0.37",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "BLQ",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.35",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.24",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.042",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.8",
+     "unit": "%",
+     "specification": "min. 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.68",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

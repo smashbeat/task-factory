@@ -1,0 +1,57 @@
+{
+ "lots": [
+  {
+   "material": "Zinc Citrate Trihydrate",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B223077",
+   "manufacture_date": "2026-04-13",
+   "retest_date": "2027-04-13",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.5",
+     "unit": "%",
+     "specification": "98.0 ~ 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.15",
+     "unit": "%",
+     "specification": "≤ 0.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.15",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.023",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Salmonella spp. (25 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Negative/25 g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.8",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.65",
+     "unit": "g/mL",
+     "specification": "0.45 ~ 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

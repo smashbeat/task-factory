@@ -1,0 +1,146 @@
+{
+ "lots": [
+  {
+   "material": "Pyridoxine Hydrochloride USP",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "L553428",
+   "manufacture_date": "2026-03-07",
+   "retest_date": "2028-03-06",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.3",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.24",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.02",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "BLQ",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.04",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "120",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "98.8",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.8",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Pyridoxine Hydrochloride USP",
+   "supplier": "Pradesh Phytochem Pvt. Ltd.",
+   "lot_number": "P180151",
+   "manufacture_date": "2026-04-20",
+   "retest_date": "2028-04-19",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.0",
+     "unit": "%",
+     "specification": "98.0 to 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.32",
+     "unit": "%",
+     "specification": "NMT 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.04",
+     "unit": "%",
+     "specification": "NMT 0.10 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "<LOQ",
+     "unit": "ppm",
+     "specification": "NMT 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.10",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Total aerobic microbial count",
+     "result": "120",
+     "unit": "cfu/g",
+     "specification": "NMT 1000 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.9",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "6.6",
+     "unit": null,
+     "specification": "5.5 to 7.5"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

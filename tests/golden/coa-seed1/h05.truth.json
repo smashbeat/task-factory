@@ -1,0 +1,69 @@
+{
+ "lots": [
+  {
+   "material": "Ferrous Bisglycinate Chelate",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "L266460",
+   "manufacture_date": "2024-04-16",
+   "retest_date": "2026-09-03",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms to reference",
+     "unit": null,
+     "specification": "Conforms to standard"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.24",
+     "unit": "%",
+     "specification": "≤ 0.5 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "0.06",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.21",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "<10",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Negative/10 g"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.0",
+     "unit": "%",
+     "specification": "≥ 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.61",
+     "unit": "g/mL",
+     "specification": "0.45 ~ 0.75 g/mL"
+    },
+    {
+     "test": "pH (1% solution)",
+     "result": "7.2",
+     "unit": null,
+     "specification": "5.5 ~ 7.5"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

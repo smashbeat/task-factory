@@ -1,0 +1,57 @@
+{
+ "lots": [
+  {
+   "material": "Ferrous Bisglycinate Chelate",
+   "supplier": "Bluewater Biochem Inc.",
+   "lot_number": "P119804",
+   "manufacture_date": "2026-02-24",
+   "retest_date": null,
+   "expiry_date": "2028-02-24",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": null,
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "140",
+     "unit": "ppb",
+     "specification": "NMT 1000 ppb"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.12",
+     "unit": "ppm",
+     "specification": "NMT 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.026",
+     "unit": "ppm",
+     "specification": "NMT 0.1 ppm"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "96.8",
+     "unit": "%",
+     "specification": "NLT 95.0 %"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.59",
+     "unit": "g/mL",
+     "specification": "0.45 to 0.75 g/mL"
+    }
+   ],
+   "disposition": "incomplete"
+  }
+ ]
+}

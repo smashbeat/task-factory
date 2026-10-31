@@ -1,0 +1,57 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Hengxin Nutrition Co., Ltd.",
+   "lot_number": "B318577",
+   "manufacture_date": "2026-06-21",
+   "retest_date": "2027-12-13",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "/"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.04",
+     "unit": "%",
+     "specification": "≤ 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.11",
+     "unit": "ppm",
+     "specification": "≤ 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.21",
+     "unit": "ppm",
+     "specification": "≤ 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.026",
+     "unit": "ppm",
+     "specification": "≤ 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "≤ 100 cfu/g"
+    }
+   ],
+   "disposition": "reject"
+  }
+ ]
+}

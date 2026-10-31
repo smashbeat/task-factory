@@ -1,0 +1,122 @@
+{
+ "lots": [
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "P116469",
+   "manufacture_date": "2026-07-25",
+   "retest_date": "2027-07-25",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white free-flowing powder with faint odour",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "98.5",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.33",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.06",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "ND",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.041",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.62",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  },
+  {
+   "material": "Calcium Carbonate (Precipitated)",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B327077",
+   "manufacture_date": "2026-07-31",
+   "retest_date": null,
+   "expiry_date": "2027-07-31",
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "Fine white free-flowing powder with faint odour",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "100.0",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.33",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Residue on ignition",
+     "result": "0.04",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Lead (Pb)",
+     "result": "BLQ",
+     "unit": null,
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.014",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Bulk density",
+     "result": "0.63",
+     "unit": "g/mL",
+     "specification": "0.45 - 0.75 g/mL"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

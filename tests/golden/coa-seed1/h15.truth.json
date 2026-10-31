@@ -1,0 +1,134 @@
+{
+ "lots": [
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "P818671",
+   "manufacture_date": "2024-05-14",
+   "retest_date": "2026-09-06",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Conforms",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.5",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.42",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.49",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.29",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.018",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    }
+   ],
+   "disposition": "reject"
+  },
+  {
+   "material": "Cholecalciferol 100,000 IU/g",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "P214208",
+   "manufacture_date": "2026-03-21",
+   "retest_date": "2028-03-20",
+   "expiry_date": null,
+   "results": [
+    {
+     "test": "Appearance",
+     "result": "White to off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": "Complies",
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay (on dried basis)",
+     "result": "99.3",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.29",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Arsenic (As)",
+     "result": "0.10",
+     "unit": "ppm",
+     "specification": "max. 1.0 ppm"
+    },
+    {
+     "test": "Cadmium (Cd)",
+     "result": "0.02",
+     "unit": "ppm",
+     "specification": "max. 0.5 ppm"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.043",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "Total yeast and mold",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Absent",
+     "unit": null,
+     "specification": "Absent"
+    }
+   ],
+   "disposition": "accept"
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "lots": [
+  {
+   "material": "Ascorbic Acid USP",
+   "supplier": "Nordvik Ingredients AS",
+   "lot_number": "B718317",
+   "manufacture_date": "2026-02-04",
+   "retest_date": null,
+   "expiry_date": "2027-02-04",
+   "results": [
+    {
+     "test": "Description",
+     "result": "Off-white powder",
+     "unit": null,
+     "specification": "Report"
+    },
+    {
+     "test": "Identification (IR)",
+     "result": null,
+     "unit": null,
+     "specification": "Conforms"
+    },
+    {
+     "test": "Assay",
+     "result": "101.0",
+     "unit": "%",
+     "specification": "98.0 - 101.5 %"
+    },
+    {
+     "test": "Loss on drying",
+     "result": "0.19",
+     "unit": "%",
+     "specification": "max. 0.5 %"
+    },
+    {
+     "test": "Sulfated ash",
+     "result": "0.04",
+     "unit": "%",
+     "specification": "max. 0.10 %"
+    },
+    {
+     "test": "Mercury (Hg)",
+     "result": "0.050",
+     "unit": "ppm",
+     "specification": "max. 0.1 ppm"
+    },
+    {
+     "test": "TYMC",
+     "result": "20",
+     "unit": "cfu/g",
+     "specification": "max. 100 cfu/g"
+    },
+    {
+     "test": "Escherichia coli (10 g)",
+     "result": "Negative",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Salmonella (25 g)",
+     "result": "Not detected",
+     "unit": null,
+     "specification": "Absent"
+    },
+    {
+     "test": "Particle size (through 80 mesh)",
+     "result": "99.0",
+     "unit": "%",
+     "specification": "min. 95.0 %"
+    }
+   ],
+   "disposition": "incomplete"
+  }
+ ]
+}
