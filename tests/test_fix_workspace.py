@@ -40,3 +40,12 @@ def test_workspace_holds_the_passing_items_as_a_regression_set(tmp_path):
     ws, _ = make_workspace(load_domain(ROOT / "packs" / "coa"), _build(tmp_path), 0, None)
     assert sorted(p.name for p in (ws / "passing").iterdir()) == ["h02.expected.json", "h02.pdf", "h02.spec.json"]
     assert not (ws / "failing" / "h02.pdf").exists()
+
+
+def test_workspace_takes_several_seeds_and_keeps_their_ids_apart(tmp_path):
+    a, b = _build(tmp_path / "a"), _build(tmp_path / "b")
+    (a / "manifest.json").write_text(json.dumps({"seed": 1}))
+    (b / "manifest.json").write_text(json.dumps({"seed": 1001}))
+    ws, failing = make_workspace(load_domain(ROOT / "packs" / "coa"), [a, b], 0, None)
+    assert failing == ["1-h01", "1001-h01"]
+    assert sorted(p.name for p in (ws / "failing").glob("*.pdf")) == ["1-h01.pdf", "1001-h01.pdf"]

@@ -60,31 +60,37 @@ print("all right" if not bad else f"{{bad}} still differ")
 """
 
 
-def make_workspace(pack: Domain, build: Path, attempt: int, start: Path | None) -> tuple[Path, list[str]]:
+def make_workspace(pack: Domain, builds: Path | list[Path], attempt: int,
+                   start: Path | None) -> tuple[Path, list[str]]:
     """The agent's workspace: the file to fix (the latest candidate, else the pack's reference), the policy, the
-    failing items with their differences, and the passing items as a regression set."""
-    build = Path(build)
+    failing items with their differences, and the passing items as a regression set. With several seeds, item
+    ids are prefixed with the seed so they stay apart."""
+    builds = [Path(builds)] if isinstance(builds, (str, Path)) else [Path(b) for b in builds]
     # The workspace lives outside the build tree, so nothing near it holds hidden answers.
     ws = Path(tempfile.mkdtemp(prefix=f"tf-fix-reference-{attempt}-"))
     shutil.copy(start or pack.root / "task" / "solution" / "intake.py", ws / "intake.py")
     shutil.copy(pack.root / "task" / "tests" / "compare.py", ws / "compare.py")
-    shutil.copy(build / "policy.md", ws / "policy.md")
-    results = json.loads((build / "reference.json").read_text())
-    for r in results:
-        i, d = r["id"], ws / ("passing" if r["ok"] else "failing")
-        d.mkdir(exist_ok=True)
-        shutil.copy(build / "pdf" / f"{i}.pdf", d / f"{i}.pdf")
-        shutil.copy(build / "specs" / f"{i}.json", d / f"{i}.spec.json")
-        shutil.copy(build / "truth" / f"{i}.json", d / f"{i}.expected.json")
-        if not r["ok"]:
-            (d / f"{i}.diff.txt").write_text("\n".join(r["diffs"]))
-    return ws, [r["id"] for r in results if not r["ok"]]
+    shutil.copy(builds[0] / "policy.md", ws / "policy.md")
+    failing = []
+    for build in builds:
+        prefix = f"{json.loads((build / 'manifest.json').read_text())['seed']}-" if len(builds) > 1 else ""
+        for r in json.loads((build / "reference.json").read_text()):
+            i, n = r["id"], prefix + r["id"]
+            d = ws / ("passing" if r["ok"] else "failing")
+            d.mkdir(exist_ok=True)
+            shutil.copy(build / "pdf" / f"{i}.pdf", d / f"{n}.pdf")
+            shutil.copy(build / "specs" / f"{i}.json", d / f"{n}.spec.json")
+            shutil.copy(build / "truth" / f"{i}.json", d / f"{n}.expected.json")
+            if not r["ok"]:
+                (d / f"{n}.diff.txt").write_text("\n".join(r["diffs"]))
+                failing.append(n)
+    return ws, failing
 
 
-def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: int = 120,
+def fix_reference(pack: Domain, build: Path | list[Path], image: str, attempt: int, limit: int = 120,
                   model: str | None = None, budget_usd: float = 5.0, start: Path | None = None) -> dict:
-    build = Path(build)
-    ws, failing = make_workspace(pack, build, attempt, start)
+    builds = [Path(build)] if isinstance(build, (str, Path)) else [Path(b) for b in build]
+    ws, failing = make_workspace(pack, builds, attempt, start)
     checker = Path(tempfile.mkdtemp(prefix=f"tf-checker-{attempt}-"))
     check = checker / "check.sh"
     check.write_text(CHECK.format(image=image, limit=limit, ws=ws.resolve()))
@@ -98,7 +104,7 @@ def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: in
            "--allowed-tools", *[f"{t}(/{ws.resolve()}/**)" for t in ("Read", "Edit", "Write", "Glob", "Grep")],
            f"Bash({check.resolve()})",
            "--disallowed-tools", "WebFetch", "WebSearch",
-           *[f"{t}(/{build.resolve()}/**)" for t in ("Read", "Glob", "Grep", "Edit", "Write")],
+           *[f"{t}(/{b.resolve()}/**)" for b in builds for t in ("Read", "Glob", "Grep", "Edit", "Write")],
            *[f"{t}(/{pack.root.resolve()}/**)" for t in ("Read", "Glob", "Grep", "Edit", "Write")],
            "--max-budget-usd", str(budget_usd)]
     if model:
