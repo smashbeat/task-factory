@@ -1,6 +1,8 @@
-"""Runs inside the task's environment image: the reference solution on every item, scored like the verifier.
+"""Runs inside the task's environment image: the reference solution on every item. No answers are mounted.
 
-python3 -I reference_main.py TASK_TESTS_DIR SOLUTION_FILE BUILD_DIR [WORKERS]
+python3 -I reference_main.py SOLUTION_FILE INPUT_DIR OUT_DIR [WORKERS]
+INPUT_DIR holds ID.pdf and ID.spec.json (read-only); OUT_DIR receives ID.json and ID.run.json.
+Scoring happens outside the container, so the solution never has the truth within reach.
 """
 from __future__ import annotations
 
@@ -8,58 +10,40 @@ import json
 import os
 import subprocess
 import sys
-import tempfile
 import time
 from multiprocessing import Pool
 from pathlib import Path
 
-TESTS = SOL = BUILD = None
+SOL = IN = OUT = None
 LIMIT = 120
 PARALLEL_CAP = 900  # contention only: the real limit is checked alone afterwards
 
 
-def _one(item_id: str, cap: float = PARALLEL_CAP) -> dict:
-    sys.path.insert(0, str(TESTS))
-    import compare
-
-    with tempfile.TemporaryDirectory() as td:
-        out = Path(td) / "out.json"
-        spec = Path(td) / "spec.json"
-        spec.write_text((BUILD / "specs" / f"{item_id}.json").read_text())
-        t0 = time.time()
-        try:
-            p = subprocess.run(["python3", str(SOL), str(BUILD / "pdf" / f"{item_id}.pdf"), str(spec), str(out)],
-                               capture_output=True, text=True, timeout=cap,
-                               env={**os.environ, "OMP_THREAD_LIMIT": "1"})
-            rc, err = p.returncode, p.stderr[-400:]
-        except subprocess.TimeoutExpired:
-            rc, err = 137, "killed at the time limit"
-        secs = time.time() - t0
-        if rc != 0 or not out.exists():
-            return {"id": item_id, "ok": False, "seconds": secs, "diffs": [f"exit {rc}: {err}"]}
-        truth = Path(td) / "truth.json"
-        truth.write_text((BUILD / "truth" / f"{item_id}.json").read_text())
-        diffs = compare.compare_files(out, truth)
-        return {"id": item_id, "ok": not diffs, "seconds": secs, "diffs": diffs[:15]}
+def _one(args: tuple[str, float]) -> dict:
+    item_id, cap = args
+    t0 = time.time()
+    try:
+        p = subprocess.run(["python3", str(SOL), str(IN / f"{item_id}.pdf"), str(IN / f"{item_id}.spec.json"),
+                            str(OUT / f"{item_id}.json")], capture_output=True, text=True, timeout=cap,
+                           env={**os.environ, "OMP_THREAD_LIMIT": "1"})
+        rc, err = p.returncode, p.stderr[-400:]
+    except subprocess.TimeoutExpired:
+        rc, err = 137, "killed at the time limit"
+    return {"id": item_id, "returncode": rc, "stderr": err, "seconds": time.time() - t0}
 
 
 def main() -> None:
-    global TESTS, SOL, BUILD
-    TESTS, SOL, BUILD = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+    global SOL, IN, OUT
+    SOL, IN, OUT = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
     workers = int(sys.argv[4]) if len(sys.argv) > 4 else 4
-    m = json.loads((BUILD / "manifest.json").read_text())
-    ids = [i["id"] for i in m["samples"] + m["hidden"]]
+    ids = sorted(p.stem for p in IN.glob("*.pdf"))
     with Pool(workers) as pool:
-        results = pool.map(_one, ids)
-    # Time the slowest items again one at a time, as the verifier runs them, against the real limit.
-    by_id = {r["id"]: r for r in results}
-    for r in sorted(results, key=lambda r: -r["seconds"])[:3]:
-        alone = _one(r["id"], cap=LIMIT)
+        runs = pool.map(_one, [(i, PARALLEL_CAP) for i in ids])
+    by_id = {r["id"]: r for r in runs}
+    for r in sorted(runs, key=lambda r: -r["seconds"])[:3]:
+        alone = _one((r["id"], LIMIT))
         by_id[r["id"]] = {**alone, "seconds_parallel": r["seconds"]}
-    results = [by_id[i] for i in ids]
-    (BUILD / "reference.json").write_text(json.dumps(results, indent=1, ensure_ascii=False))
-    alone = [r for r in results if "seconds_parallel" in r]
-    print(f"reference right on {sum(r['ok'] for r in results)} of {len(results)}; slowest alone {max(r['seconds'] for r in alone):.0f} s")
+    (OUT / "runs.json").write_text(json.dumps([by_id[i] for i in ids], indent=1))
 
 
 if __name__ == "__main__":

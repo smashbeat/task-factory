@@ -123,17 +123,27 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
     from .assemble import assemble
     from .gates import reference_gate, render_gate
 
-    docker.render(pack, out)
+    try:
+        docker.render(pack, out)
+    except Exception as e:
+        run.log.append({"stage": "render", "attempt": 0, "status": "fail", "send_back": "pack",
+                        "findings": [{"level": "fail", "text": str(e)}]})
+        run.verdict, run.stopped_at = "stopped", "render"
+        return
     g = render_gate(out)
     _record(run, "render", 0, g)
     if g.status == "fail":
         run.verdict, run.stopped_at = "stopped", "render"
         return
     ref_file = pack.root / "task" / "solution" / "intake.py"
-    original = ref_file.read_text()
-    fixed = False
+    candidate: Path | None = None   # an agent's fix stays a candidate until the held-out seed passes
     for attempt in range(RETRIES + 1):
-        docker.reference(pack, out)
+        try:
+            docker.reference(pack, out, solution=candidate)
+        except Exception as e:
+            (out / "reference.json").write_text("[]")
+            run.log.append({"stage": "reference", "attempt": attempt, "status": "fail", "send_back": None,
+                            "findings": [{"level": "fail", "text": f"reference could not run: {e}"}]})
         g = reference_gate(out)
         _record(run, "reference", attempt, g)
         if g.status != "fail":
@@ -151,12 +161,13 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
         if res["disputed"] or res["error"]:
             run.verdict, run.stopped_at = "stopped", "reference"
             return
-        shutil.copy(res["fixed_file"], ref_file)
-        fixed = True
-    if fixed and not _holdout(run, pack, out):
-        ref_file.write_text(original)
-        run.verdict, run.stopped_at = "stopped", "holdout"
-        return
+        candidate = out / f"candidate-{attempt}.py"
+        shutil.copy(res["fixed_file"], candidate)
+    if candidate is not None:
+        if not _holdout(run, pack, out, candidate):
+            run.verdict, run.stopped_at = "stopped", "holdout"
+            return
+        shutil.copy(candidate, ref_file)
     name = f"{pack.name}-s{run.seed}"
     assemble(pack, out, task_dir or out / "task" / name, name)
     run.verdict = "task assembled, ready for trials"
@@ -166,18 +177,32 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
 HOLDOUT_OFFSET = 1000
 
 
-def _holdout(run: BuildRun, pack: Domain, out: Path) -> bool:
+def _holdout(run: BuildRun, pack: Domain, out: Path, candidate: Path) -> bool:
     """A fixed reference must also pass on a seed the fixing agent never saw."""
+    import shutil
+
     from . import docker
-    from .gates import reference_gate
+    from .gates import reference_gate, render_gate
 
     seed = run.seed + HOLDOUT_OFFSET
     hold = out / f"holdout-{seed}"
+    if hold.exists():
+        shutil.rmtree(hold)
     plan = make_plan(pack, seed)
     corpus = make_corpus(pack, plan, seed)
     _write(hold, pack, plan, corpus, BuildRun(pack.name, seed))
-    docker.render(pack, hold)
-    docker.reference(pack, hold)
+    try:
+        docker.render(pack, hold)
+        g = render_gate(hold)
+        if g.status == "fail":
+            g.gate = "holdout-render"
+            _record(run, "holdout", 0, g)
+            return False
+        docker.reference(pack, hold, solution=candidate)
+    except Exception as e:  # any failure to check is a failed check
+        run.log.append({"stage": "holdout", "attempt": 0, "status": "fail", "send_back": None,
+                        "findings": [{"level": "fail", "text": f"holdout could not run: {e}"}]})
+        return False
     g = reference_gate(hold)
     g.gate = "holdout"
     _record(run, "holdout", 0, g)

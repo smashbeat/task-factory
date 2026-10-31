@@ -140,6 +140,15 @@ def reference_gate(build_dir, limit: float = 120.0, headroom: float = 0.5) -> Ga
     if not p.exists():
         return _result("reference", "Reference: can the task be done?", [Finding("fail", "reference not run yet")], "reference")
     rs = json.loads(p.read_text())
+    m = Path(build_dir) / "manifest.json"
+    if m.exists():
+        mm = json.loads(m.read_text())
+        planned = {i["id"] for i in mm["samples"] + mm["hidden"]}
+        missing = sorted(planned - {r["id"] for r in rs})
+        if missing or not rs:
+            f.append(Finding("fail", f"reference has no result for {', '.join(missing) or 'any item'}"))
+    elif not rs:
+        f.append(Finding("fail", "reference produced no results"))
     wrong = [r for r in rs if not r["ok"]]
     for r in wrong:
         f.append(Finding("fail", f"{r['id']}: " + "; ".join(r["diffs"][:3])))
@@ -147,6 +156,6 @@ def reference_gate(build_dir, limit: float = 120.0, headroom: float = 0.5) -> Ga
     slow = max((r["seconds"] for r in timed), default=0)
     if slow > limit * headroom:
         f.append(Finding("warn", f"slowest item took {slow:.0f} s of the {limit:.0f} s limit"))
-    if not wrong:
+    if not wrong and not f:
         f.append(Finding("info", f"reference right on all {len(rs)} items; slowest {slow:.0f} s alone, against a {limit:.0f} s limit"))
     return _result("reference", "Reference: can the task be done?", f, "reference")

@@ -11,6 +11,7 @@ import hashlib
 import json
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from .pack import Domain
@@ -59,10 +60,9 @@ print("all right" if not bad else f"{{bad}} still differ")
 def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: int = 120,
                   model: str | None = None, budget_usd: float = 5.0) -> dict:
     build = Path(build)
-    ws = build / f"fix-reference-{attempt}"
-    if ws.exists():
-        shutil.rmtree(ws)
-    (ws / "failing").mkdir(parents=True)
+    # The workspace lives outside the build tree, so nothing near it holds hidden answers.
+    ws = Path(tempfile.mkdtemp(prefix=f"tf-fix-reference-{attempt}-"))
+    (ws / "failing").mkdir()
     shutil.copy(pack.root / "task" / "solution" / "intake.py", ws / "intake.py")
     shutil.copy(pack.root / "task" / "tests" / "compare.py", ws / "compare.py")
     shutil.copy(build / "policy.md", ws / "policy.md")
@@ -73,10 +73,7 @@ def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: in
         shutil.copy(build / "specs" / f"{i}.json", ws / "failing" / f"{i}.spec.json")
         shutil.copy(build / "truth" / f"{i}.json", ws / "failing" / f"{i}.expected.json")
         (ws / "failing" / f"{i}.diff.txt").write_text("\n".join(r["diffs"]))
-    checker = build / f"checker-{attempt}"
-    if checker.exists():
-        shutil.rmtree(checker)
-    checker.mkdir()
+    checker = Path(tempfile.mkdtemp(prefix=f"tf-checker-{attempt}-"))
     check = checker / "check.sh"
     check.write_text(CHECK.format(image=image, limit=limit, ws=ws.resolve()))
     check.chmod(0o555)
@@ -89,6 +86,8 @@ def fix_reference(pack: Domain, build: Path, image: str, attempt: int, limit: in
            "--allowed-tools", *[f"{t}(/{ws.resolve()}/**)" for t in ("Read", "Edit", "Write", "Glob", "Grep")],
            f"Bash({check.resolve()})",
            "--disallowed-tools", "WebFetch", "WebSearch",
+           *[f"{t}(/{build.resolve()}/**)" for t in ("Read", "Glob", "Grep", "Edit", "Write")],
+           *[f"{t}(/{pack.root.resolve()}/**)" for t in ("Read", "Glob", "Grep", "Edit", "Write")],
            "--max-budget-usd", str(budget_usd)]
     if model:
         cmd += ["--model", model]

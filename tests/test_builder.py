@@ -181,3 +181,16 @@ def build_and_fake_pdfs(build):
 
 
 build_fn = build
+
+
+def test_reference_gate_fails_closed_on_missing_items(tmp_path):
+    import json
+
+    from taskfactory.builder.gates import reference_gate
+
+    (tmp_path / "manifest.json").write_text(json.dumps({"samples": [{"id": "s01"}], "hidden": [{"id": "h01"}]}))
+    (tmp_path / "reference.json").write_text(json.dumps([]))
+    assert reference_gate(tmp_path).status == "fail"
+    (tmp_path / "reference.json").write_text(json.dumps([{"id": "s01", "ok": True, "seconds": 1, "diffs": []}]))
+    r = reference_gate(tmp_path)
+    assert r.status == "fail" and any("h01" in f.text for f in r.findings)

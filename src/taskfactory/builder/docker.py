@@ -27,18 +27,58 @@ def _run(img: str, mounts: list[tuple[Path, str, bool]], argv: list[str], timeou
 
 
 def render(pack: Domain, build: Path, workers: int = 6) -> subprocess.CompletedProcess:
-    return _run(
+    """Draw every item with the pack's own (trusted) renderer. Raises when the container fails."""
+    p = _run(
         image(pack, "gen"),
         [(SRC, "/tf/src", True), (pack.root, "/pack", True), (build, "/build", False)],
         ["python3", "-I", "/tf/src/taskfactory/builder/render_main.py", "/pack", "/build", str(workers)],
         timeout=3600,
     )
+    if p.returncode != 0:
+        raise RuntimeError(f"render failed: {p.stderr[-800:]}")
+    return p
 
 
-def reference(pack: Domain, build: Path, workers: int = 6) -> subprocess.CompletedProcess:
-    return _run(
-        image(pack, "ref"),
-        [(SRC, "/tf/src", True), (pack.root / "task", "/task", True), (build, "/build", False)],
-        ["python3", "-I", "/tf/src/taskfactory/builder/reference_main.py", "/task/tests", "/task/solution/intake.py", "/build", str(workers)],
-        timeout=7200,
-    )
+def reference(pack: Domain, build: Path, solution: Path | None = None, workers: int = 6) -> list[dict]:
+    """Run a solution on every item with only its inputs mounted, then score it here against the truth.
+
+    The container sees the PDFs and specs read-only and has no network; answers stay on the host.
+    Writes build/reference.json and returns it.
+    """
+    import importlib.util
+    import json
+    import shutil
+    import tempfile
+
+    build = Path(build)
+    solution = Path(solution or pack.root / "task" / "solution" / "intake.py")
+    with tempfile.TemporaryDirectory(prefix="tf-ref-") as td:
+        inp, out, sol = Path(td) / "in", Path(td) / "out", Path(td) / "sol"
+        inp.mkdir(), out.mkdir(), sol.mkdir()
+        out.chmod(0o777)
+        shutil.copy(solution, sol / "intake.py")
+        for pdf in (build / "pdf").glob("*.pdf"):
+            shutil.copy(pdf, inp / pdf.name)
+            shutil.copy(build / "specs" / f"{pdf.stem}.json", inp / f"{pdf.stem}.spec.json")
+        cmd = ["docker", "run", "--rm", "--network", "none",
+               "-v", f"{SRC}:/tf/src:ro", "-v", f"{sol}:/sol:ro", "-v", f"{inp}:/in:ro", "-v", f"{out}:/out",
+               image(pack, "ref"), "python3", "-I", "/tf/src/taskfactory/builder/reference_main.py",
+               "/sol/intake.py", "/in", "/out", str(workers)]
+        subprocess.run(cmd, capture_output=True, text=True, timeout=7200, check=True)
+        spec = importlib.util.spec_from_file_location("tf_compare", pack.root / "task" / "tests" / "compare.py")
+        compare = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(compare)
+        results = []
+        for r in json.loads((out / "runs.json").read_text()):
+            i = r["id"]
+            got = out / f"{i}.json"
+            if r["returncode"] != 0 or not got.exists():
+                diffs = [f"exit {r['returncode']}: {r['stderr']}"]
+            else:
+                diffs = compare.compare_files(got, build / "truth" / f"{i}.json")
+            entry = {"id": i, "ok": not diffs, "seconds": r["seconds"], "diffs": diffs[:15]}
+            if "seconds_parallel" in r:
+                entry["seconds_parallel"] = r["seconds_parallel"]
+            results.append(entry)
+    (build / "reference.json").write_text(json.dumps(results, indent=1, ensure_ascii=False))
+    return results
