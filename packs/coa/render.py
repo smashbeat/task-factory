@@ -610,13 +610,12 @@ def produce(c: Cert, path, rnd):
         simg = stamp_image(stamp[1], rnd)
         # the stamp goes on page 1 next to the identity block: drawn through 'pre' on the first page only
         prev = variant.get("pre")
-        state = {"done": False}
 
         def pre_stamp(pen, simg=simg, prev=prev):
             if prev:
                 prev(pen)
-            if not state["done"]:
-                state["done"] = True
+            # by page number, not a one-shot flag: the correction redraws the certificate with this variant
+            if pen.page_no == 1:
                 w = simg.width * 0.36
                 pen.image(simg, pen.w - 54 - w, 112, w, simg.height * 0.36)
         variant["pre"] = pre_stamp
@@ -690,7 +689,8 @@ def produce(c: Cert, path, rnd):
         set_meta(path, h["meta"])
         x0, y0, x1, y1 = find_word(path, wrong)
         r["result"] = true
-        freetext_correction(path, 0, (x0 - 2, y0 - 2.5, x0 + 70, y1 + 2), true)
+        # cover the printed number only: a unit printed in the same cell stays visible
+        freetext_correction(path, 0, (x0 - 2, y0 - 2.5, max(x1, x0 + 5.5 * len(true)) + 2, y1 + 2), true)
         note += f": printed {wrong} corrected by annotation to {true} for {r['test']}"
     shutil.rmtree(td)
     return note
