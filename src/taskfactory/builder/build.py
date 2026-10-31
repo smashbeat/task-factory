@@ -78,7 +78,7 @@ def _item(i, corpus: Corpus) -> dict:
 
 
 def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, docker: bool = False,
-          task_dir: Path | None = None, fix: bool = False) -> BuildRun:
+          task_dir: Path | None = None, fix: bool = False, fix_model: str | None = None) -> BuildRun:
     pack = load_domain(pack_dir)
     run = BuildRun(pack.name, seed)
     g = pack_gate(pack)
@@ -109,13 +109,14 @@ def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, d
         run.verdict = "ready to render, with warnings" if warned else "ready to render"
         _write(Path(out), pack, plan, corpus, run)
         if docker:
-            _docker_stages(run, pack, Path(out), task_dir, fix)
+            _docker_stages(run, pack, Path(out), task_dir, fix, fix_model)
         return run
     run.verdict = "stopped"
     return run
 
 
-def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None, fix: bool = False) -> None:
+def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None, fix: bool = False,
+                   fix_model: str | None = None) -> None:
     import shutil
 
     from . import docker
@@ -152,7 +153,7 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
             run.verdict, run.stopped_at = "stopped", "reference"
             return
         # The judge sends the failure back to the reference; an authoring agent fixes it in a sandbox.
-        res = fix_reference(pack, out, docker.image(pack, "ref"), attempt)
+        res = fix_reference(pack, out, docker.image(pack, "ref"), attempt, model=fix_model)
         run.log.append({"stage": "fix-reference", "attempt": attempt, "status": "fail" if res["error"] else "info",
                         "send_back": "pack" if res["disputed"] else None,
                         "findings": [{"level": "info", "text": res["summary"][:1500]}] +
