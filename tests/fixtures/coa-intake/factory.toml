@@ -1,0 +1,74 @@
+# What the coa-intake generator knows about its own features, written down so failures can be attributed.
+# A signature says: on an item built with this feature, this symptom in the diff means the agent broke this rule.
+
+[task]
+name = "coa-intake"
+manifest = "manifest.json"
+policy = "policy.md"
+decision_fields = ["disposition"]
+# Routes where the page has to be read from pixels or reconstructed text; a value diff there is a reading miss.
+reading_routes = ["scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated", "outlined"]
+# Features that put something over or across the text; a row or lot miscount on these is a reading miss.
+reading_features = ["annot_correction", "watermark", "stamp_lot", "wrap"]
+
+[[signature]]
+feature = "rev_page"
+symptom = "lot_count_over"
+rules = [5]
+says = "counted the revision page as a lot"
+
+[[signature]]
+feature = "rev_extends"
+symptom = "lot_count_over"
+rules = [5]
+says = "counted the revision page as a lot"
+
+[[signature]]
+feature = "rev_page"
+symptom = "row_count_over"
+rules = [5]
+says = "appended the revision page's rows instead of revising values in place"
+
+[[signature]]
+feature = "rev_extends"
+symptom = "row_count_over"
+rules = [5]
+says = "appended the revision page's rows instead of revising values in place"
+
+[[signature]]
+feature = "a4_continuation"
+symptom = "lot_count_over"
+rules = [9]
+says = "split one lot into two entries where its table continues on the next page"
+
+[[signature]]
+feature = "continuation"
+symptom = "lot_count_over"
+rules = [1, 9]
+says = "reported the continuation page's lot line as another lot"
+
+[[signature]]
+feature = "stamp_retest"
+symptom = "field"
+field = "retest_date"
+rules = [3, 8]
+says = "ignored the retest date stamped on the page"
+
+[[signature]]
+feature = "marker"
+symptom = "contains"
+fields = ["result", "unit"]
+contains = "*"
+rules = [4, 6]
+says = "kept the footnote mark with the value, so it was never converted"
+
+[[signature]]
+feature = "rev_twice"
+symptom = "decision_only"
+rules = [5, 8]
+says = "read every value right but decided the lot on a superseded revision"
+
+[[signature]]
+symptom = "decision_only"
+rules = [8]
+says = "read every value right but decided the lot wrongly"

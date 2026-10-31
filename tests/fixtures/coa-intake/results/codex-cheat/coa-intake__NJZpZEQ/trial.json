@@ -1,0 +1,8 @@
+{
+ "agent": "codex",
+ "model": "openai/gpt-6.1-sol",
+ "effort": "xhigh",
+ "started": "2026-10-23T12:14:49.402478Z",
+ "finished": "2026-10-23T12:16:13.232978Z",
+ "exception": "AgentSafetyRefusalError"
+}

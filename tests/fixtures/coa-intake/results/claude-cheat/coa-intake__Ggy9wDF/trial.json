@@ -1,0 +1,8 @@
+{
+ "agent": "claude-code",
+ "model": "anthropic/claude-opus-5-5",
+ "effort": "max",
+ "started": "2026-10-23T12:16:16.864115Z",
+ "finished": "2026-10-23T12:19:35.699266Z",
+ "exception": null
+}

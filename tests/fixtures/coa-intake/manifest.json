@@ -1,0 +1,557 @@
+{
+ "samples": [
+  {
+   "id": "s01",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "alias"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "s02",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "round_metal",
+    "units"
+   ],
+   "notes": "distilled",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "s03",
+   "house": "pradesh",
+   "route": "scan_ocr",
+   "features": [
+    "nd_loq_col"
+   ],
+   "notes": "scan_ocr",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "s04",
+   "house": "bluewater",
+   "route": "form",
+   "features": [
+    "expired"
+   ],
+   "notes": "form",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "s05",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "continuation",
+    "rev_block",
+    "rev_result"
+   ],
+   "notes": "digital",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "s06",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "marker",
+    "nd_loq_note"
+   ],
+   "notes": "distilled",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "s07",
+   "house": "pradesh",
+   "route": "scan_ocr",
+   "features": [
+    "round_range",
+    "stamp_lot"
+   ],
+   "notes": "scan_ocr",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  }
+ ],
+ "hidden": [
+  {
+   "id": "h01",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "alias",
+    "continuation",
+    "round_metal",
+    "units"
+   ],
+   "notes": "digital",
+   "lots": 3,
+   "dispositions": [
+    "accept",
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h02",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "fail",
+    "rev_block",
+    "rev_twice"
+   ],
+   "notes": "digital",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h03",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "nd_loq_note",
+    "rev_page",
+    "rev_result"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h04",
+   "house": "pradesh",
+   "route": "outlined",
+   "features": [
+    "alias",
+    "round_min"
+   ],
+   "notes": "outlined",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h05",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "expired",
+    "white_decoy"
+   ],
+   "notes": "digital white decoy lot L497306",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h06",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "marker",
+    "units_bad"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "incomplete",
+    "incomplete"
+   ]
+  },
+  {
+   "id": "h07",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "annot_correction",
+    "nd_loq_high"
+   ],
+   "notes": "digital: printed 1.40 corrected by annotation to 0.04 for Residue on ignition",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h08",
+   "house": "hengxin",
+   "route": "digital",
+   "features": [
+    "round_fail",
+    "round_range",
+    "scramble"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "reject",
+    "accept"
+   ]
+  },
+  {
+   "id": "h09",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "alias",
+    "nd_no_loq"
+   ],
+   "notes": "distilled",
+   "lots": 3,
+   "dispositions": [
+    "incomplete",
+    "incomplete",
+    "incomplete"
+   ]
+  },
+  {
+   "id": "h10",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "rev_extends",
+    "rev_page"
+   ],
+   "notes": "distilled",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h11",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "marker",
+    "round_fail",
+    "round_metal",
+    "units"
+   ],
+   "notes": "distilled",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h12",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "a4_continuation",
+    "continuation",
+    "nd_loq_note",
+    "wrap"
+   ],
+   "notes": "distilled",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h13",
+   "house": "nordvik",
+   "route": "outlined",
+   "features": [
+    "alias",
+    "rev_block",
+    "rev_result"
+   ],
+   "notes": "outlined",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h14",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "alias",
+    "missing",
+    "watermark"
+   ],
+   "notes": "distilled",
+   "lots": 1,
+   "dispositions": [
+    "incomplete"
+   ]
+  },
+  {
+   "id": "h15",
+   "house": "nordvik",
+   "route": "distilled",
+   "features": [
+    "expired",
+    "stamp_retest"
+   ],
+   "notes": "distilled",
+   "lots": 2,
+   "dispositions": [
+    "reject",
+    "accept"
+   ]
+  },
+  {
+   "id": "h16",
+   "house": "pradesh",
+   "route": "scan_wrong_ocr",
+   "features": [
+    "nd_loq_col",
+    "round_min"
+   ],
+   "notes": "scan_wrong_ocr: OCR layer read from altered values; the image is right",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h17",
+   "house": "pradesh",
+   "route": "scan_no_ocr",
+   "features": [
+    "alias",
+    "round_metal",
+    "units"
+   ],
+   "notes": "scan_no_ocr",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h18",
+   "house": "pradesh",
+   "route": "scan_rotated",
+   "features": [
+    "fail",
+    "stamp_lot"
+   ],
+   "notes": "scan_rotated",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h19",
+   "house": "pradesh",
+   "route": "scan_ocr",
+   "features": [
+    "nd_loq_col",
+    "rev_block",
+    "rev_result"
+   ],
+   "notes": "scan_ocr",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  },
+  {
+   "id": "h20",
+   "house": "pradesh",
+   "route": "scan_ocr",
+   "features": [
+    "expired",
+    "wrap"
+   ],
+   "notes": "scan_ocr",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h21",
+   "house": "pradesh",
+   "route": "scan_no_ocr",
+   "features": [
+    "marker",
+    "round_range"
+   ],
+   "notes": "scan_no_ocr",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h22",
+   "house": "pradesh",
+   "route": "scan_wrong_ocr",
+   "features": [
+    "units",
+    "units_bad"
+   ],
+   "notes": "scan_wrong_ocr: OCR layer read from altered values; the image is right",
+   "lots": 2,
+   "dispositions": [
+    "incomplete",
+    "accept"
+   ]
+  },
+  {
+   "id": "h23",
+   "house": "bluewater",
+   "route": "form_mismatch",
+   "features": [
+    "alias",
+    "round_metal"
+   ],
+   "notes": "form_mismatch",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h24",
+   "house": "bluewater",
+   "route": "form",
+   "features": [
+    "marker",
+    "nd_loq_note"
+   ],
+   "notes": "form",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h25",
+   "house": "bluewater",
+   "route": "scan_ocr",
+   "features": [
+    "rev_block",
+    "rev_extends"
+   ],
+   "notes": "scan_ocr",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h26",
+   "house": "bluewater",
+   "route": "digital",
+   "features": [
+    "nd_loq_high",
+    "units"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "reject",
+    "reject"
+   ]
+  },
+  {
+   "id": "h27",
+   "house": "bluewater",
+   "route": "outlined",
+   "features": [
+    "round_fail",
+    "round_min",
+    "stamp_retest"
+   ],
+   "notes": "outlined",
+   "lots": 1,
+   "dispositions": [
+    "reject"
+   ]
+  },
+  {
+   "id": "h28",
+   "house": "bluewater",
+   "route": "form_mismatch",
+   "features": [
+    "missing",
+    "units"
+   ],
+   "notes": "form_mismatch",
+   "lots": 1,
+   "dispositions": [
+    "incomplete"
+   ]
+  },
+  {
+   "id": "h29",
+   "house": "bluewater",
+   "route": "digital",
+   "features": [
+    "rev_block",
+    "rev_twice",
+    "scramble"
+   ],
+   "notes": "digital",
+   "lots": 1,
+   "dispositions": [
+    "accept"
+   ]
+  },
+  {
+   "id": "h30",
+   "house": "bluewater",
+   "route": "digital",
+   "features": [
+    "alias",
+    "continuation",
+    "watermark",
+    "wrap"
+   ],
+   "notes": "digital",
+   "lots": 2,
+   "dispositions": [
+    "accept",
+    "accept"
+   ]
+  }
+ ]
+}

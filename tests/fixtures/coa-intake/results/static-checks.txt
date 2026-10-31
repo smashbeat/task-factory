@@ -1,0 +1,30 @@
+# Static checks on tasks/coa-intake in terminal-bench-3 main e67a2cb7, run 2026-10-23T18:12Z, on the task as submitted
+# python3 on PATH = Python 3.13.12. check-image-digests: dockerfile-pin v1.5.0, CI's checksummed Linux build, in a linux/amd64 alpine container
+PASS check-allow-internet.sh
+PASS check-canary.sh
+PASS check-compose-volumes.sh
+PASS check-cpu-threads.sh
+PASS check-dockerfile-platform.sh
+PASS check-dockerfile-references.sh
+PASS check-dockerfile-sanity.sh
+PASS check-gpu-types.sh
+PASS check-instruction-headings.sh
+PASS check-instruction-suffix.sh
+PASS check-no-allow-internet-true.sh
+PASS check-no-cheat-dir.sh
+PASS check-nproc.sh
+PASS check-pip-pinning.sh
+PASS check-pytest-version.sh
+PASS check-resource-sizes.sh
+PASS check-separate-verifier.sh
+PASS check-task-absolute-path.sh
+PASS check-task-changelog.sh
+PASS check-task-fields.sh
+PASS check-task-package-name.sh
+PASS check-task-slug.sh
+PASS check-task-timeout.sh
+PASS check-test-file-references.sh
+PASS check-test-sh-sanity.sh
+PASS check-trial-network-fetch.sh
+PASS check-verifier-tooling-baked.sh
+PASS check-image-digests.sh
