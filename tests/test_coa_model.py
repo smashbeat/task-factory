@@ -68,3 +68,14 @@ def test_each_switch_changes_some_answer():
             if c.truth(frozenset({r})) != base:
                 changed.add(r)
     assert changed == {3, 4, 5, 6, 7, 8}
+
+
+def test_missing_never_empties_a_marked_row():
+    # holdout seed 1001, h28: the only candidate fell back to row 0, which carried the retest marker, so the page
+    # printed a lone '*'
+    sys.path.insert(0, str(ROOT / "packs" / "coa"))
+    import pack
+    c = pack.build("h28", "hengxin", "form_mismatch", 1, frozenset({"fail", "marker", "missing"}), random.Random("1001-h28"))
+    rows = c.lots[0]["rows"]
+    assert any(r["result"] is None for r in rows)
+    assert not [r for r in rows if r["marker"] and r["result"] is None]

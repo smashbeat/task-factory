@@ -400,8 +400,9 @@ def apply_features(c: Cert):
         else:
             r["result"] = str(round_to(D(p["max"]) * D("1.03"), decimals(p["max"])))
     if "missing" in f:
+        # the fallback skips a marked row: a footnote mark on an empty cell is not a missing result
         j = rnd.choice([j for j, r in enumerate(lot0["rows"]) if r["t"][2] in ("report", "conforms", "absent")]
-                       or [0])
+                       or [next(j for j, r in enumerate(lot0["rows"]) if not r["marker"])])
         lot0["rows"][j]["result"] = None
     if "wrap" in f:
         j = next(j for j, r in enumerate(lot0["rows"]) if r["t"][0] == "Appearance")
