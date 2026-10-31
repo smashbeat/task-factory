@@ -108,3 +108,44 @@ def corpus_gate(pack: Domain, plan: Plan, corpus: Corpus, seed: int) -> GateResu
         else:
             f.append(Finding("info", f"rule {r.id} ({r.title}) decides {len(h)} hidden items and {len(s)} samples"))
     return _result("corpus", "Corpus: deterministic, varied, and every rule tested?", f, send)
+
+
+def render_gate(build_dir) -> GateResult:
+    """Every item drawn, and drawing changed no answer."""
+    import json
+    from pathlib import Path
+
+    f: list[Finding] = []
+    p = Path(build_dir) / "render.json"
+    if not p.exists():
+        return _result("render", "Render: is every item drawn, with its answer unchanged?", [Finding("fail", "nothing rendered yet")], "pack")
+    rs = json.loads(p.read_text())
+    for r in rs:
+        if r.get("error"):
+            f.append(Finding("fail", f"{r['id']} did not render: {r['error']}"))
+        elif not r.get("truth_unchanged"):
+            f.append(Finding("fail", f"{r['id']}: drawing changed its answer; truth must come from the model alone"))
+    if not f:
+        f.append(Finding("info", f"{len(rs)} items drawn; every answer unchanged by drawing"))
+    return _result("render", "Render: is every item drawn, with its answer unchanged?", f, "pack")
+
+
+def reference_gate(build_dir, limit: float = 120.0, headroom: float = 0.5) -> GateResult:
+    """The reference gets every item right, with time to spare: proof the task can be done."""
+    import json
+    from pathlib import Path
+
+    f: list[Finding] = []
+    p = Path(build_dir) / "reference.json"
+    if not p.exists():
+        return _result("reference", "Reference: can the task be done?", [Finding("fail", "reference not run yet")], "reference")
+    rs = json.loads(p.read_text())
+    wrong = [r for r in rs if not r["ok"]]
+    for r in wrong:
+        f.append(Finding("fail", f"{r['id']}: " + "; ".join(r["diffs"][:3])))
+    slow = max((r["seconds"] for r in rs), default=0)
+    if slow > limit * headroom:
+        f.append(Finding("warn", f"slowest item took {slow:.0f} s of the {limit:.0f} s limit"))
+    if not wrong:
+        f.append(Finding("info", f"reference right on all {len(rs)} items; slowest {slow:.0f} s"))
+    return _result("reference", "Reference: can the task be done?", f, "reference")

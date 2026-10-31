@@ -252,3 +252,8 @@ rules = [2]
 says = "kept the printed value under a visible correction"
 routes = ["digital"]
 units = 1
+
+[images]
+# Built from the pack: gen draws the documents, ref has exactly the task environment's software.
+gen = "gen-env"
+ref = "ref-env"

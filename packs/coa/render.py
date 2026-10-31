@@ -1,3 +1,42 @@
+"""coa domain pack: drawing and production routes. Runs inside the coa generator image (fonts, Ghostscript,
+Tesseract, OCRmyPDF). Ported from coa-intake's gen2.py; `render(item, path, rng)` continues the item's own
+random stream, exactly as gen2 did after apply_features."""
+from __future__ import annotations
+
+import copy
+import io
+import os
+import random
+import shutil
+import subprocess
+import tempfile
+
+import pikepdf
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas as rl_canvas
+
+from model import *  # noqa: F403  the certificate model, catalogue and helpers
+
+FONT_FILES = {
+    "Liberation": ("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+                   "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+    "DejaVuSerif": ("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf",
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"),
+    "Carlito": ("/usr/share/fonts/truetype/crosextra/Carlito-Regular.ttf",
+                "/usr/share/fonts/truetype/crosextra/Carlito-Bold.ttf"),
+    "Roboto": ("/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Regular.ttf",
+               "/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Bold.ttf"),
+    "OpenSans": ("/usr/share/fonts/truetype/open-sans/OpenSans-Regular.ttf",
+                 "/usr/share/fonts/truetype/open-sans/OpenSans-Bold.ttf"),
+}
+for fam, (reg, bold) in FONT_FILES.items():
+    pdfmetrics.registerFont(TTFont(fam, reg))
+    pdfmetrics.registerFont(TTFont(fam + "-Bold", bold))
+STAMP_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+
 # ------------------------------------------------------------------ drawing
 
 class Pen:
@@ -364,7 +403,6 @@ def render(c: Cert, path, variant=None):
 
 # ------------------------------------------------------------------ production routes
 
-SCAN_ROUTES = {"scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"}
 
 
 def set_meta(path, meta):
@@ -656,3 +694,8 @@ def produce(c: Cert, path, rnd):
         note += f": printed {wrong} corrected by annotation to {true} for {r['test']}"
     shutil.rmtree(td)
     return note
+
+
+def render_item(item, path, rng):
+    """Draw the item through its route. Returns the production note for the manifest."""
+    return produce(item, path, rng)

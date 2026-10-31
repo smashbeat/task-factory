@@ -6,6 +6,7 @@ up to two times. A failure sent back to the pack stops the build: rules and feat
 from __future__ import annotations
 
 import json
+import textwrap
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -39,7 +40,8 @@ def _record(run: BuildRun, stage: str, attempt: int, g) -> None:
 def policy_text(pack: Domain) -> str:
     lines = [f"{pack.item.capitalize()} intake policy (normative)", ""]
     for r in pack.rules:
-        lines += [f"{r.id}. {r.title}. {r.text}", ""]
+        body = textwrap.fill(f"{r.id}. {r.title}. {r.text}", width=113, subsequent_indent="   ")
+        lines += [body, ""]
     return "\n".join(lines)
 
 
@@ -75,7 +77,8 @@ def _item(i, corpus: Corpus) -> dict:
             "rules_decided": sorted(corpus.mutants[i.id])}
 
 
-def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan) -> BuildRun:
+def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, docker: bool = False,
+          task_dir: Path | None = None) -> BuildRun:
     pack = load_domain(pack_dir)
     run = BuildRun(pack.name, seed)
     g = pack_gate(pack)
@@ -105,6 +108,31 @@ def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan) -
         warned = any(x["status"] == "warn" for x in run.log if x["attempt"] == attempt or x["stage"] == "pack")
         run.verdict = "ready to render, with warnings" if warned else "ready to render"
         _write(Path(out), pack, plan, corpus, run)
+        if docker:
+            _docker_stages(run, pack, Path(out), task_dir)
         return run
     run.verdict = "stopped"
     return run
+
+
+def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None) -> None:
+    from . import docker
+    from .assemble import assemble
+    from .gates import reference_gate, render_gate
+
+    docker.render(pack, out)
+    g = render_gate(out)
+    _record(run, "render", 0, g)
+    if g.status == "fail":
+        run.verdict, run.stopped_at = "stopped", "render"
+        return
+    docker.reference(pack, out)
+    g = reference_gate(out)
+    _record(run, "reference", 0, g)
+    if g.status == "fail":
+        run.verdict, run.stopped_at = "stopped", "reference"
+        return
+    name = f"{pack.name}-s{run.seed}"
+    assemble(pack, out, task_dir or out / "task" / name, name)
+    run.verdict = "task assembled, ready for trials"
+    (out / "build.json").write_text(json.dumps({"verdict": run.verdict, "log": run.log}, indent=1))

@@ -24,3 +24,9 @@ def truth(item, off: frozenset[int] = frozenset()) -> dict:
 
 def spec(item) -> dict:
     return item.spec
+
+
+def render(item, path, rng) -> str:
+    import render as _render  # needs the generator image's fonts and tools
+
+    return _render.render_item(item, str(path), rng)

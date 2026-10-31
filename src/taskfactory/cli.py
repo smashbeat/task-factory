@@ -25,6 +25,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("pack", type=Path)
     b.add_argument("--seed", type=int, default=1)
     b.add_argument("--out", type=Path, required=True)
+    b.add_argument("--docker", action="store_true", help="also render, run the reference and assemble the Harbor task")
     a = ap.parse_args(argv)
     if a.cmd == "build":
         return _build(a)
@@ -47,7 +48,7 @@ def main(argv: list[str] | None = None) -> int:
 def _build(a) -> int:
     from .builder.build import build
 
-    run = build(a.pack, a.seed, a.out)
+    run = build(a.pack, a.seed, a.out, docker=a.docker)
     for entry in run.log:
         print(f"[{entry['status']:4}] {entry['stage']} (attempt {entry['attempt']})")
         for x in entry["findings"]:
