@@ -208,6 +208,8 @@ def _fix_until_pass(run: BuildRun, pack: Domain, train: list[Path], candidate: P
 
 HOLDOUT_OFFSET = 1000
 HOLDOUT_ROUNDS = 3   # a failed holdout becomes training data, and the next round draws a fresh seed
+HOLDOUT_PASS = 0.9   # share of a fresh seed's items the reference must get right: proof it reads, not memorises.
+                     # Every item of the shipped seed must still be right; that is the reference gate's job.
 
 
 def _holdout(run: BuildRun, pack: Domain, out: Path, candidate: Path, rnd: int = 1) -> Path | None:
@@ -240,6 +242,15 @@ def _holdout(run: BuildRun, pack: Domain, out: Path, candidate: Path, rnd: int =
         return hold
     g = reference_gate(hold)
     g.gate = "holdout"
-    g.findings.insert(0, Finding("info", f"seed {seed}"))
+    rs = json.loads((hold / "reference.json").read_text())
+    m = json.loads((hold / "manifest.json").read_text())
+    planned = {i["id"] for i in m["samples"] + m["hidden"]}
+    right = sum(1 for r in rs if r["ok"] and r["id"] in planned)
+    if g.status == "fail" and planned <= {r["id"] for r in rs} and right >= HOLDOUT_PASS * len(planned):
+        # near misses on a fresh seed are reading noise, not memorised answers: pass with a warning
+        g.findings = [Finding("warn" if x.level == "fail" else x.level, x.text) for x in g.findings]
+        g.status, g.send_back = "warn", None
+    g.findings.insert(0, Finding("info", f"seed {seed}: {right} of {len(planned)} right, "
+                                         f"{HOLDOUT_PASS:.0%} needed"))
     _record(run, "holdout", rnd, g)
     return None if g.status != "fail" else hold

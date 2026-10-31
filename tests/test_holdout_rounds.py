@@ -109,3 +109,44 @@ def test_a_build_can_start_from_an_earlier_candidate(tmp_path, monkeypatch):
     assert fixes == []
     assert run.verdict == "task assembled, ready for trials"
     assert (pack / "task" / "solution" / "intake.py").read_text() == "earlier"
+
+
+def _near_miss(tmp_path, monkeypatch, wrong):
+    """The pack's reference passes the training seed and gets `wrong` items of each fresh seed wrong."""
+    pack = tmp_path / "coa"
+    shutil.copytree(ROOT / "packs" / "coa", pack)
+    monkeypatch.setattr(docker, "render", lambda p, d, workers=6: (d / "render.json").write_text(
+        json.dumps([{"id": i, "truth_unchanged": True} for i in _ids(d)])))
+
+    def reference(p, d, solution=None):
+        ids = _ids(d)
+        bad = set(ids[:wrong]) if d.name.startswith("holdout") else set()
+        (d / "reference.json").write_text(json.dumps([{"id": i, "ok": i not in bad, "diffs": ["x"] if i in bad else [],
+                                                       "seconds": 1} for i in ids]))
+
+    def fix(p, builds, image, attempt, model=None, start=None):
+        f = tmp_path / "fix.py"
+        f.write_text("fixed")
+        return {"error": False, "disputed": False, "dispute": None, "summary": "", "cost_usd": 0, "fixed_file": str(f)}
+
+    monkeypatch.setattr(docker, "reference", reference)
+    monkeypatch.setattr(docker, "image", lambda p, k: "img")
+    monkeypatch.setattr(agent, "fix_reference", fix)
+    monkeypatch.setattr(assemble, "assemble", lambda *a: None)
+    start = tmp_path / "earlier.py"
+    start.write_text("earlier")
+    return build(pack, 1, tmp_path / "out", docker=True, fix=True, start_from=start)
+
+
+def test_a_fresh_seed_passes_when_nine_in_ten_are_right(tmp_path, monkeypatch):
+    run = _near_miss(tmp_path, monkeypatch, wrong=4)          # 37 of 41
+    assert run.verdict == "task assembled, ready for trials"
+    hold = [x for x in run.log if x["stage"] == "holdout"]
+    assert hold[0]["status"] == "warn"
+    assert any("37 of 41" in f["text"] for f in hold[0]["findings"])
+
+
+def test_a_fresh_seed_fails_below_nine_in_ten(tmp_path, monkeypatch):
+    run = _near_miss(tmp_path, monkeypatch, wrong=5)          # 36 of 41
+    assert [x["status"] for x in run.log if x["stage"] == "holdout"][0] == "fail"
+    assert run.verdict != "task assembled, ready for trials"
