@@ -28,6 +28,7 @@ def main(argv: list[str] | None = None) -> int:
     b.add_argument("--docker", action="store_true", help="also render, run the reference and assemble the Harbor task")
     b.add_argument("--fix", action="store_true", help="let an authoring agent fix what the reference gate sends back")
     b.add_argument("--fix-model", default="sonnet", help="model for the authoring agent")
+    b.add_argument("--start-from", type=Path, help="start the reference from this earlier candidate")
     a = ap.parse_args(argv)
     if a.cmd == "build":
         return _build(a)
@@ -50,7 +51,8 @@ def main(argv: list[str] | None = None) -> int:
 def _build(a) -> int:
     from .builder.build import build
 
-    run = build(a.pack, a.seed, a.out, docker=a.docker, fix=a.fix, fix_model=a.fix_model)
+    run = build(a.pack, a.seed, a.out, docker=a.docker, fix=a.fix, fix_model=a.fix_model,
+                start_from=a.start_from)
     for entry in run.log:
         print(f"[{entry['status']:4}] {entry['stage']} (attempt {entry['attempt']})")
         for x in entry["findings"]:

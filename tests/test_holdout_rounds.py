@@ -78,3 +78,34 @@ def test_holdout_rounds_stop_after_the_last_round(tmp_path, monkeypatch):
     assert run.stopped_at == "holdout"
     assert trained == {"out", "holdout-1001", "holdout-2001"}
     assert (pack / "task" / "solution" / "intake.py").read_text() == ref
+
+
+def test_a_build_can_start_from_an_earlier_candidate(tmp_path, monkeypatch):
+    pack = tmp_path / "coa"
+    shutil.copytree(ROOT / "packs" / "coa", pack)
+    start = tmp_path / "earlier.py"
+    start.write_text("earlier")
+    used, fixes = [], []
+
+    monkeypatch.setattr(docker, "render", lambda p, d, workers=6: (d / "render.json").write_text(
+        json.dumps([{"id": i, "truth_unchanged": True} for i in _ids(d)])))
+
+    def reference(p, d, solution=None):
+        used.append(solution.read_text() if solution else "intake.py")
+        ok = solution is not None and solution.read_text() == "earlier"
+        (d / "reference.json").write_text(json.dumps([{"id": i, "ok": ok, "diffs": [] if ok else ["x"], "seconds": 1}
+                                                      for i in _ids(d)]))
+
+    def fix(p, builds, image, attempt, model=None, start=None):
+        fixes.append(start)
+        raise AssertionError("the earlier candidate passes, so no fix is needed")
+
+    monkeypatch.setattr(docker, "reference", reference)
+    monkeypatch.setattr(docker, "image", lambda p, k: "img")
+    monkeypatch.setattr(agent, "fix_reference", fix)
+    monkeypatch.setattr(assemble, "assemble", lambda *a: None)
+    run = build(pack, 1, tmp_path / "out", docker=True, fix=True, start_from=start)
+    assert used == ["earlier", "earlier"]          # training seed, then the holdout
+    assert fixes == []
+    assert run.verdict == "task assembled, ready for trials"
+    assert (pack / "task" / "solution" / "intake.py").read_text() == "earlier"

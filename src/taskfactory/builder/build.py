@@ -78,7 +78,8 @@ def _item(i, corpus: Corpus) -> dict:
 
 
 def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, docker: bool = False,
-          task_dir: Path | None = None, fix: bool = False, fix_model: str | None = None) -> BuildRun:
+          task_dir: Path | None = None, fix: bool = False, fix_model: str | None = None,
+          start_from: Path | None = None) -> BuildRun:
     pack = load_domain(pack_dir)
     run = BuildRun(pack.name, seed)
     g = pack_gate(pack)
@@ -109,14 +110,14 @@ def build(pack_dir: Path, seed: int, out: Path, planner: Callable = make_plan, d
         run.verdict = "ready to render, with warnings" if warned else "ready to render"
         _write(Path(out), pack, plan, corpus, run)
         if docker:
-            _docker_stages(run, pack, Path(out), task_dir, fix, fix_model)
+            _docker_stages(run, pack, Path(out), task_dir, fix, fix_model, start_from)
         return run
     run.verdict = "stopped"
     return run
 
 
 def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None, fix: bool = False,
-                   fix_model: str | None = None) -> None:
+                   fix_model: str | None = None, start_from: Path | None = None) -> None:
     import shutil
 
     from . import docker
@@ -137,6 +138,9 @@ def _docker_stages(run: BuildRun, pack: Domain, out: Path, task_dir: Path | None
         return
     ref_file = pack.root / "task" / "solution" / "intake.py"
     candidate: Path | None = None   # an agent's fix stays a candidate until a seed it never saw passes
+    if start_from:                   # resume from an earlier run's candidate instead of the pack's reference
+        candidate = out / "candidate-start.py"
+        shutil.copy(start_from, candidate)
     train = [out]                    # every seed the agent has seen; a failed holdout joins it
     for rnd in range(1, HOLDOUT_ROUNDS + 1):
         candidate = _fix_until_pass(run, pack, train, candidate, fix, fix_model)
