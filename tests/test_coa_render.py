@@ -8,9 +8,11 @@ import pytest
 ROOT = Path(__file__).parent.parent
 IMAGE = "tf-coa-intake-gen:latest"
 CASES = [
-    ("a1", "pradesh", "digital", 1, ["annot_correction", "stamp_retest"]),
-    ("a2", "nordvik", "digital", 1, ["annot_correction"]),
-    ("a3", "hengxin", "digital", 1, ["annot_correction"]),
+    ("a1", "pradesh", "digital", 1, ["annot_correction", "stamp_retest"], "probe-a1"),
+    ("a2", "nordvik", "digital", 1, ["annot_correction"], "probe-a2"),
+    ("a3", "hengxin", "digital", 1, ["annot_correction"], "probe-a3"),
+    # holdout seed 1001: the corrected row fell on the continuation page
+    ("h19", "bluewater", "digital", 1, ["a4_continuation", "annot_correction", "continuation", "watermark"], "1001-h19"),
 ]
 
 
@@ -30,7 +32,7 @@ def test_stamp_survives_the_correction_redraw(drawn):
     assert drawn["a1"]["images"] >= 1
 
 
-@pytest.mark.parametrize("cid", ["a1", "a2", "a3"])
+@pytest.mark.parametrize("cid", ["a1", "a2", "a3", "h19"])
 def test_correction_covers_only_the_printed_number(drawn, cid):
     covered = drawn[cid]["covered"]
     assert len(covered) == 1 and covered[0].replace(".", "").isdigit(), covered

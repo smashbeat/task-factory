@@ -508,12 +508,19 @@ def freetext_correction(path, page_index, rect, text):
         pdf.save(path)
 
 
-def find_word(path, word, page_index=0, occurrence=-1):
+def page_count(path):
+    import fitz
+    return len(fitz.open(path))
+
+
+def find_word(path, word, page_index=0, occurrence=-1, missing_ok=False):
     """Position of a printed string, in PDF user space (bottom-left origin)."""
     import fitz
     doc = fitz.open(path)
     page = doc[page_index]
     hits = page.search_for(word)
+    if not hits and missing_ok:
+        return None
     r = hits[occurrence]
     h = page.rect.height
     return (r.x0, h - r.y1, r.x1, h - r.y0)
@@ -687,10 +694,12 @@ def produce(c: Cert, path, rnd):
         render(c, base, variant)
         shutil.copy(base, path)
         set_meta(path, h["meta"])
-        x0, y0, x1, y1 = find_word(path, wrong)
+        # the row can sit on a continuation page
+        pi = next(i for i in range(page_count(path)) if find_word(path, wrong, i, missing_ok=True))
+        x0, y0, x1, y1 = find_word(path, wrong, pi)
         r["result"] = true
         # cover the printed number only: a unit printed in the same cell stays visible
-        freetext_correction(path, 0, (x0 - 2, y0 - 2.5, max(x1, x0 + 5.5 * len(true)) + 2, y1 + 2), true)
+        freetext_correction(path, pi, (x0 - 2, y0 - 2.5, max(x1, x0 + 5.5 * len(true)) + 2, y1 + 2), true)
         note += f": printed {wrong} corrected by annotation to {true} for {r['test']}"
     shutil.rmtree(td)
     return note
