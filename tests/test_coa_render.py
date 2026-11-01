@@ -15,6 +15,10 @@ CASES = [
     ("h19", "bluewater", "digital", 1, ["a4_continuation", "annot_correction", "continuation", "watermark"], "1001-h19"),
     # holdout seed 5001: a scrambled table dropped the marked row's mark and unit ("0.34" for "0.34ᵃ %")
     ("h16", "nordvik", "distilled", 2, ["marker", "scramble", "units_bad"], "5001-h16"),
+    # build seed 4001: the retest stamp sat over the end of "Calcium Carbonate (Precipitated)"
+    ("h03", "nordvik", "digital", 2, ["continuation", "marker", "rev_page", "rev_twice", "round_metal", "stamp_retest"],
+     "4001-h03"),
+    ("s07", "pradesh", "digital", 1, ["nd_loq_high", "stamp_lot", "watermark"], "4001-s07"),
 ]
 
 
@@ -43,3 +47,9 @@ def test_correction_covers_only_the_printed_number(drawn, cid):
 def test_a_scrambled_row_keeps_its_mark_and_unit(drawn):
     line = drawn["h16"]["marked_line"]
     assert "".join(line) == "0.34a%", line          # the superscript mark reads as part of the number
+
+
+@pytest.mark.parametrize("cid", ["a1", "h03", "s07"])
+def test_a_stamp_covers_no_printed_word(drawn, cid):
+    assert drawn[cid]["images"] >= 1
+    assert drawn[cid]["under_stamp"] == [], drawn[cid]["under_stamp"]

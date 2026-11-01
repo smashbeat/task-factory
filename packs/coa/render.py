@@ -49,6 +49,7 @@ class Pen:
         self.w, self.h = self.size
         self.y = 54
         self.page_no = 1
+        self.boxes = []             # (page, x0, top, x1, bottom) of every string drawn, top-left coordinates
 
     def text(self, x, s, size=10, bold=False, y=None, color=(0, 0, 0), align="left", sup=None, fill=None):
         yy = self.y if y is None else y
@@ -58,6 +59,8 @@ class Pen:
         if align == "center":
             x = x - pdfmetrics.stringWidth(s, f, size) / 2
         self.c.drawString(x, self.h - yy, s)
+        self.boxes.append((self.page_no, x, yy - size, x + pdfmetrics.stringWidth(s, f, size) + (size if sup else 0),
+                           yy + size * 0.3))
         if sup:
             sw = pdfmetrics.stringWidth(s, f, size)
             self.c.setFont(f, size * 0.6)
@@ -626,16 +629,23 @@ def produce(c: Cert, path, rnd):
             stamp = ("retest", f"RETEST {d.strftime('%d %b %Y').upper()}")
         variant["stamp_ref"] = stamp
         simg = stamp_image(stamp[1], rnd)
-        # the stamp goes on page 1 next to the identity block: drawn through 'pre' on the first page only
+        sw, sh = simg.width * 0.36, simg.height * 0.36
+        # the stamp goes on page 1 next to the identity block, never over a printed word: a dry draw of the page
+        # without it gives the words' boxes, and the stamp takes the highest clear place at the right margin
+        dry = render(c, os.path.join(td, "dry.pdf"), dict(variant))
+        words = [b for b in dry.boxes if b[0] == 1]
+        sx = dry.w - 54 - sw
+        clear = lambda y: not any(b[1] < sx + sw + 4 and b[3] > sx - 4 and b[2] < y + sh + 4 and b[4] > y - 4
+                                  for b in words)
+        sy = next((y for y in range(112, int(dry.h / 2)) if clear(y)), 112)
         prev = variant.get("pre")
 
-        def pre_stamp(pen, simg=simg, prev=prev):
+        def pre_stamp(pen, simg=simg, prev=prev, sx=sx, sy=sy):
             if prev:
                 prev(pen)
             # by page number, not a one-shot flag: the correction redraws the certificate with this variant
             if pen.page_no == 1:
-                w = simg.width * 0.36
-                pen.image(simg, pen.w - 54 - w, 112, w, simg.height * 0.36)
+                pen.image(simg, sx, sy, sw, sh)
         variant["pre"] = pre_stamp
     if "white_decoy" in c.features:
         decoy = f"{c.lots[0]['lot_number'][0]}{rnd.randint(100000, 999999)}"
