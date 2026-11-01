@@ -9,6 +9,11 @@ module = "pack"
 samples_max = 14
 hidden = 30
 units_max = 3
+# difficulty: features per hidden certificate, and the least share of hidden certificates with several lots
+# and on a reading route
+hidden_features = [4, 6]
+hidden_several = 0.7
+hidden_reading = 0.6
 styles = ["hengxin", "nordvik", "pradesh", "bluewater"]
 routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated", "form", "form_mismatch"]
 # routes whose pages must be read from pixels or reconstructed text

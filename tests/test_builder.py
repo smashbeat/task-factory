@@ -211,3 +211,38 @@ def test_spec_gate_fails_a_style_never_shown_with_several_units(pack, plan):
     r = spec_gate(pack, p)
     assert r.status == "fail" and r.send_back == "plan"
     assert any("hengxin" in f.text for f in r.findings)
+
+
+@pytest.mark.parametrize("seed", [1, 4001])
+def test_hidden_items_stack_the_packs_feature_count(pack, seed):
+    # difficulty comes from features meeting on one certificate, not from one feature at a time
+    lo, hi = pack.hidden_features
+    p = make_plan(pack, seed=seed)
+    assert (lo, hi) == (4, 6)
+    assert all(lo <= len(i.features) <= hi for i in p.hidden), [(i.id, len(i.features)) for i in p.hidden]
+
+
+@pytest.mark.parametrize("seed", [1, 4001])
+def test_hidden_items_meet_the_several_units_share(pack, seed):
+    p = make_plan(pack, seed=seed)
+    several = sum(i.units > 1 for i in p.hidden)
+    assert pack.hidden_several == 0.7
+    assert several >= round(pack.hidden_several * pack.hidden), several
+
+
+@pytest.mark.parametrize("seed", [1, 4001])
+def test_hidden_items_meet_the_reading_route_share(pack, seed):
+    p = make_plan(pack, seed=seed)
+    reading = sum(i.route in pack.reading_routes for i in p.hidden)
+    assert pack.hidden_reading == 0.6
+    assert reading >= round(pack.hidden_reading * pack.hidden), reading
+
+
+def test_a_pack_without_difficulty_knobs_keeps_the_old_mix(tmp_path):
+    import shutil
+    shutil.copytree(COA, tmp_path / "coa")
+    toml = (tmp_path / "coa" / "pack.toml").read_text()
+    toml = "\n".join(l for l in toml.splitlines() if not l.startswith(("hidden_features", "hidden_several", "hidden_reading")))
+    (tmp_path / "coa" / "pack.toml").write_text(toml)
+    d = load_domain(tmp_path / "coa")
+    assert (d.hidden_features, d.hidden_several, d.hidden_reading) == ((1, 29), 0.0, 0.0)

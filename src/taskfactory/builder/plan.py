@@ -2,7 +2,8 @@
 
 Samples are chosen first, greedily, until every feature appears in at least one worked sample, every style is
 shown with several units, and as many routes as fit. Hidden items then combine features, favouring the least used features, routes and styles, so
-each seed gives a different mix. Every item is built once here to prove the pack can make it.
+each seed gives a different mix. The pack sets how many features a hidden item stacks and the least share of
+hidden items with several units and on a reading route: that is the difficulty knob. Every item is built once here to prove the pack can make it.
 """
 from __future__ import annotations
 
@@ -70,21 +71,25 @@ def decided_rules(pack: Domain, it: ItemPlan, seed: int) -> set[int]:
     return {r.id for r in pack.rules if r.mutant and pack.module.truth(model, frozenset({r.id})) != t}
 
 
-def _candidate(pack, rng, want: list[str], routes_w, styles_w, item_id, seed, k_extra):
+def _candidate(pack, rng, want: list[str], routes_w, styles_w, item_id, seed, k_extra, units_lo=1, route_ok=None):
     feats = _close(pack, set(want), rng)
-    pool = [f.name for f in pack.features if f.name not in feats]
+    # extras that fit the item's route and unit demands, so a narrow route still gets a full item
+    pool = [f.name for f in pack.features if f.name not in feats and f.units >= units_lo
+            and (route_ok is None or any(route_ok(r) for r in f.routes))]
     rng.shuffle(pool)
     for name in pool[:k_extra]:
         trial = _close(pack, feats | {name}, rng)
         if any(set(pack.feature(n).excludes) & trial for n in trial):
             continue
         feats = trial
-    routes = [r for r in pack.routes if all(r in pack.feature(n).routes for n in feats)]
+    routes = [r for r in pack.routes if all(r in pack.feature(n).routes for n in feats) and (route_ok is None or route_ok(r))]
     if not routes:
         return None
     route = rng.choices(routes, weights=[routes_w(r) for r in routes])[0]
     cap = min([pack.units_max] + [pack.feature(n).units for n in feats])
-    units = rng.randint(1, cap)
+    if units_lo > cap:
+        return None
+    units = rng.randint(units_lo, cap)
     style = rng.choices(pack.styles, weights=[styles_w(s) for s in pack.styles])[0]
     it = ItemPlan(item_id, style, route, units, frozenset(feats))
     if not _consistent(pack, set(feats), route, units) or not buildable(pack, it, seed):
@@ -137,19 +142,37 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
     s_use: Counter = Counter()
     rule_use: Counter = Counter()
     target = pack.hidden / max(1, sum(r.mutant for r in pack.rules))
+    fmin, fmax = pack.hidden_features
+    need_several = round(pack.hidden_several * pack.hidden)
+    need_reading = round(pack.hidden_reading * pack.hidden)
     for n in range(pack.hidden):
         hid = f"h{n + 1:02d}"
+        left = pack.hidden - n
+        # the shares are met by the end; due items are spread through the corpus, forced only when they must be
+        due_s = need_several - sum(i.units > 1 for i in hidden)
+        due_r = need_reading - sum(i.route in pack.reading_routes for i in hidden)
+        several = due_s >= left or (due_s > 0 and rng.random() < due_s / left)
+        reading = due_r >= left or (due_r > 0 and rng.random() < due_r / left)
+        route_ok = (lambda r: r in pack.reading_routes) if reading else None
+        unused = [r for r in pack.routes if not r_use[r]]
+        if unused and not several and not reading and (len(unused) * 2 >= left or rng.random() < 0.3):
+            # a route still unused is aimed at directly: random extras rarely all fit a narrow route
+            aim = rng.choice(unused)
+            route_ok = lambda r, aim=aim: r == aim
+        fits = [x for x in names if route_ok is None or any(route_ok(r) for r in pack.feature(x).routes)]
         best, best_score = None, -1.0
-        for _ in range(40):
-            least = sorted(names, key=lambda x: (f_use[x], rng.random()))
-            want = [least[0]] if rng.random() < 0.7 else [rng.choice(names)]
+        for _ in range(80):
+            least = sorted(fits, key=lambda x: (f_use[x], rng.random()))
+            want = [least[0]] if rng.random() < 0.7 else [rng.choice(fits)]
             it = _candidate(
                 pack, rng, want,
                 routes_w=lambda r: 12.0 if not r_use[r] else 1.0 / (1 + r_use[r]),
                 styles_w=lambda s: 1.0 / (1 + s_use[s]),
-                item_id=hid, seed=seed, k_extra=rng.randint(0, 2),
+                item_id=hid, seed=seed, k_extra=rng.randint(max(0, fmin - 1), max(0, fmax - 1)),
+                units_lo=2 if several else 1,
+                route_ok=route_ok,
             )
-            if it is None:
+            if it is None or not fmin <= len(it.features) <= fmax:
                 continue
             rules = decided_rules(pack, it, seed)
             score = (sum(1.0 / (1 + f_use[x]) for x in it.features) + (3.0 if not r_use[it.route] else 1.0 / (1 + r_use[it.route]))

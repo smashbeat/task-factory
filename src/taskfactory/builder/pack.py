@@ -45,6 +45,9 @@ class Domain:
     samples_max: int
     hidden: int
     units_max: int
+    hidden_features: tuple[int, int] = (1, 1)
+    hidden_several: float = 0.0
+    hidden_reading: float = 0.0
     extra: dict = field(default_factory=dict)
 
     def rule(self, rid: int) -> Rule:
@@ -98,5 +101,8 @@ def load_domain(root: Path) -> Domain:
         samples_max=p.get("samples_max", 12),
         hidden=p.get("hidden", 30),
         units_max=units_max,
+        hidden_features=tuple(p.get("hidden_features", (1, len(feats)))),
+        hidden_several=p.get("hidden_several", 0.0),
+        hidden_reading=p.get("hidden_reading", 0.0),
         extra={k: v for k, v in d.items() if k not in ("pack", "rule", "feature")},
     )
