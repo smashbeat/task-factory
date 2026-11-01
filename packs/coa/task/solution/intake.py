@@ -658,6 +658,13 @@ def page_words(page):
             if any(beside(w, a) for a in added):
                 added.append(w)
                 grown = True
+    # a short bracketed qualifier ("Identification (IR)") set close beside a word already taken on its line is
+    # part of that printed line: a confident sparse reading of it joins the line
+    for w in sparse:
+        if any(w is a for a in added) or w["conf"] < 85 or not re.fullmatch(r"\([A-Za-z0-9%.,]{1,8}\)", w["text"]):
+            continue
+        if any(beside(w, o) for o in words + added):
+            added.append(w)
     words += added
     # Placed images (stamps, logos) carry printed text of their own; read each one on its own, deskewed
     page_area = page.rect.width * page.rect.height
