@@ -221,13 +221,24 @@ def draw_table(pen, c, cols, rows_of, n_rows, page_bottom, on_new_page, size=9.5
         if order_reverse:
             placements = list(reversed(placements))
             for px, py, piece, mark in placements:     # each word emitted separately, last word first
+                sup, tail = False, None
+                if mark and "|" in mark:               # marker then unit, as in the plain branch below
+                    m, tail = mark.split("|")
+                    sup = m == "sup"
+                    piece = piece if sup else piece + m
+                elif mark == "sup":
+                    sup = True
+                elif mark:
+                    piece += mark
                 words, cx = piece.split(" "), px
                 spots = []
-                for wd in words:
-                    spots.append((cx, wd))
+                for k, wd in enumerate(words):
+                    spots.append((cx, wd, sup and k == len(words) - 1))
                     cx += pen.width(wd + " ", size)
-                for sx, wd in reversed(spots):
-                    pen.text(sx, wd, size, y=py)
+                if tail:
+                    spots.append((px + pen.width(piece, size) + (8 if sup else pen.width(" ", size)), tail, False))
+                for sx, wd, s_up in reversed(spots):
+                    pen.text(sx, wd, size, y=py, sup="a" if s_up else None)
         else:
             for px, py, piece, mark in placements:
                 if mark and "|" in mark:               # marker then unit, e.g. "0.42* mg/kg"

@@ -13,6 +13,8 @@ CASES = [
     ("a3", "hengxin", "digital", 1, ["annot_correction"], "probe-a3"),
     # holdout seed 1001: the corrected row fell on the continuation page
     ("h19", "bluewater", "digital", 1, ["a4_continuation", "annot_correction", "continuation", "watermark"], "1001-h19"),
+    # holdout seed 5001: a scrambled table dropped the marked row's mark and unit ("0.34" for "0.34ᵃ %")
+    ("h16", "nordvik", "distilled", 2, ["marker", "scramble", "units_bad"], "5001-h16"),
 ]
 
 
@@ -36,3 +38,8 @@ def test_stamp_survives_the_correction_redraw(drawn):
 def test_correction_covers_only_the_printed_number(drawn, cid):
     covered = drawn[cid]["covered"]
     assert len(covered) == 1 and covered[0].replace(".", "").isdigit(), covered
+
+
+def test_a_scrambled_row_keeps_its_mark_and_unit(drawn):
+    line = drawn["h16"]["marked_line"]
+    assert "".join(line) == "0.34a%", line          # the superscript mark reads as part of the number

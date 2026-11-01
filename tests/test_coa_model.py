@@ -79,3 +79,13 @@ def test_missing_never_empties_a_marked_row():
     rows = c.lots[0]["rows"]
     assert any(r["result"] is None for r in rows)
     assert not [r for r in rows if r["marker"] and r["result"] is None]
+
+
+def test_a_blank_result_reports_no_unit_where_the_unit_prints_in_the_result_cell():
+    # holdout seed 5001 h30: nordvik prints the unit in the result cell; a blank cell prints no unit
+    sys.path.insert(0, str(ROOT / "packs" / "coa"))
+    import pack
+    it = pack.build("h30", "nordvik", "scan_no_ocr", 2,
+                    frozenset({"a4_continuation", "continuation", "missing", "stamp_retest"}), random.Random("5001-h30"))
+    rows = [r for lot in pack.truth(it)["lots"] for r in lot["results"] if r["result"] is None]
+    assert rows and all(r["unit"] is None for r in rows), rows

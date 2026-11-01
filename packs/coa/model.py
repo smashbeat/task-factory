@@ -404,6 +404,8 @@ def apply_features(c: Cert):
         j = rnd.choice([j for j, r in enumerate(lot0["rows"]) if r["t"][2] in ("report", "conforms", "absent")]
                        or [next(j for j, r in enumerate(lot0["rows"]) if not r["marker"])])
         lot0["rows"][j]["result"] = None
+        if "result_unit" in [k for _, k, _ in c.house["cols"]] or c.house["multi"] == "columns":
+            lot0["rows"][j]["unit"] = None               # the unit prints in the result cell, so a blank cell has none
     if "wrap" in f:
         j = next(j for j, r in enumerate(lot0["rows"]) if r["t"][0] == "Appearance")
         for lot in c.lots:
