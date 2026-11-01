@@ -1,7 +1,7 @@
 """The composition of a corpus, drawn per seed.
 
-Samples are chosen first, greedily, until every feature appears in at least one worked sample and as many
-routes as fit. Hidden items then combine features, favouring the least used features, routes and styles, so
+Samples are chosen first, greedily, until every feature appears in at least one worked sample, every style is
+shown with several units, and as many routes as fit. Hidden items then combine features, favouring the least used features, routes and styles, so
 each seed gives a different mix. Every item is built once here to prove the pack can make it.
 """
 from __future__ import annotations
@@ -101,7 +101,8 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
     routes_left = set(pack.routes)
     style_use: Counter = Counter()
     rules_left = {r.id for r in pack.rules if r.mutant}
-    while (uncovered or routes_left or rules_left) and len(samples) < pack.samples_max:
+    several_left = set(pack.styles) if pack.units_max > 1 else set()   # styles not yet shown with several units
+    while (uncovered or routes_left or rules_left or several_left) and len(samples) < pack.samples_max:
         sid = f"s{len(samples) + 1:02d}"
         best, best_score = None, 0.0
         for _ in range(120):
@@ -110,13 +111,14 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
             it = _candidate(
                 pack, rng, want,
                 routes_w=lambda r: (50.0 if not uncovered else 4.0) if r in routes_left else 1.0,
-                styles_w=lambda s: 1.0 / (1 + style_use[s]),
+                styles_w=lambda s: (4.0 if s in several_left else 1.0) / (1 + style_use[s]),
                 item_id=sid, seed=seed, k_extra=0,
             )
             if it is None:
                 continue
             rules = decided_rules(pack, it, seed)
-            score = len(it.features & uncovered) + 0.5 * (it.route in routes_left) + 1.5 * len(rules & rules_left)
+            score = (len(it.features & uncovered) + 0.5 * (it.route in routes_left) + 1.5 * len(rules & rules_left)
+                     + 1.0 * (it.units > 1 and it.style in several_left))
             if score > best_score:
                 best, best_score, best_rules = it, score, rules
         if best is None:
@@ -125,6 +127,8 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
         samples.append(best)
         uncovered -= best.features
         routes_left.discard(best.route)
+        if best.units > 1:
+            several_left.discard(best.style)
         style_use[best.style] += 1
 
     hidden: list[ItemPlan] = []

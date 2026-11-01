@@ -194,3 +194,20 @@ def test_reference_gate_fails_closed_on_missing_items(tmp_path):
     (tmp_path / "reference.json").write_text(json.dumps([{"id": "s01", "ok": True, "seconds": 1, "diffs": []}]))
     r = reference_gate(tmp_path)
     assert r.status == "fail" and any("h01" in f.text for f in r.findings)
+
+
+@pytest.mark.parametrize("seed", [1, 4001])
+def test_every_style_shows_several_units_in_a_sample(pack, seed):
+    # each style lays out several lots its own way; a style an agent never saw with several lots is unfair
+    p = make_plan(pack, seed=seed)
+    assert {i.style for i in p.samples if i.units > 1} == set(pack.styles)
+
+
+def test_spec_gate_fails_a_style_never_shown_with_several_units(pack, plan):
+    import copy
+    import dataclasses
+    p = copy.deepcopy(plan)
+    p.samples = [dataclasses.replace(i, units=1) if i.style == "hengxin" else i for i in p.samples]
+    r = spec_gate(pack, p)
+    assert r.status == "fail" and r.send_back == "plan"
+    assert any("hengxin" in f.text for f in r.findings)

@@ -60,6 +60,12 @@ def spec_gate(pack: Domain, plan: Plan) -> GateResult:
     for x in pack.features:
         if not shown[x.name]:
             f.append(Finding("fail", f"no worked sample shows '{x.name}' (rules {', '.join(map(str, x.rules))}); agents would meet it first on hidden items"))
+    several = {it.style for it in plan.samples if it.units > 1}
+    if pack.units_max > 1:
+        for st in pack.styles:
+            if st not in several:
+                f.append(Finding("fail", f"no worked sample shows style '{st}' with several units; "
+                                         "each style lays them out its own way"))
     routes = {it.route for it in plan.samples}
     for r in pack.routes:
         if r not in routes:
