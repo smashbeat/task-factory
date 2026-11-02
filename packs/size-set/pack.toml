@@ -1,0 +1,325 @@
+# size-set domain pack: garment measurement intake. Rules and features are data; the policy, the sample plan
+# and the attribution profile are all produced from this file.
+
+[pack]
+name = "size-set"
+item = "report"
+unit = "size"
+module = "pack"
+ext = "pdf"
+samples_max = 14
+hidden = 30
+units_max = 6
+hidden_features = [4, 6]
+hidden_several = 0.7
+hidden_reading = 0.6
+styles = ["yongsheng", "plm", "inspect", "tablet"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated", "form", "form_mismatch"]
+reading_routes = ["outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+route_rules = { form_mismatch = [2], scan_wrong_ocr = [2], scan_rotated = [2] }
+
+[[rule]]
+id = 1
+title = "Scope"
+text = """One measurement report covers one style at one sample stage and measures one or more sizes, with one or two pieces (garments) per size, on one or more pages. The brand's spec (SPEC.json) gives the style, the house unit (`in` or `cm`) and precision (`1/8`, `1/16`, `0.1` or `0.5`), the sizes in order and the base size, the points of measure (each with a code, its names, whether it is a half measure, whether it is critical, a plus and a minus tolerance, and either a value per size or a base value with grade steps) and the spec's dated revisions. The report's header prints the measurement date once; that date is `measured_on` and is the measurement date wherever this policy says so. A re-measurement prints its own date, which never changes `measured_on`."""
+mutant = false
+
+[[rule]]
+id = 2
+title = "What a value is"
+text = """A value is what a reader sees on the printed page, read upright. Everything else in the file is an aid to reading, and where it disagrees with the print, the print is right. Everything that prints is part of the page, and a correction placed visibly over a printed value (a stamp, an annotation) replaces what that place prints."""
+mutant = false
+
+[[rule]]
+id = 3
+title = "The report's own columns"
+text = """A spec value, a difference, a deviation or a pass or fail mark printed on the report is the vendor's reckoning and is an aid only. The measured value is what the report prints for the garment; the spec in force (rule 4) and rules 5 to 8 decide the deviation and whether it is within tolerance."""
+mutant = true
+
+[[rule]]
+id = 4
+title = "The spec in force"
+text = """A point's value for a size is its `values` entry for that size when the spec gives values; else it follows from `base` at the base size by the grade steps: `grade` gives, for each size after the first, the increase from the size before it, so sizes above the base add the steps between them and the base, and sizes below subtract them. Then the revisions apply in order of revision number, each only when its date is on or before the measurement date: a revision with `set` replaces the value for the sizes it names (`all` means every size), one with `change` adds its signed amount. A revision dated after the measurement date does not apply."""
+mutant = true
+
+[[rule]]
+id = 5
+title = "Units and notation"
+text = """A printed measurement is in the unit the report prints for it: a column or block header, a note such as "all measurements in cm", or a suffix on the value; when the report prints none, it is in the house unit. Inches print as mixed fractions (`20 1/4`, `20-1/4`, `20¼`) or decimals; centimetres as decimals. One inch is 2.54 cm exactly. A value in another unit is converted to the house unit before anything else is done with it."""
+mutant = true
+
+[[rule]]
+id = 6
+title = "Half measures and rounding"
+text = """A point marked `half` in the spec is a flat measurement, half the circumference. When the report states that it measured such a point around the full circumference (`full`, `circ.`, `around`, in the row or in a note), the printed value is halved. After conversion and halving, the value is rounded to the nearest multiple of the house precision, with a value exactly halfway between two multiples rounded up."""
+mutant = true
+
+[[rule]]
+id = 7
+title = "Which point, size and piece"
+text = """A printed point matches a spec point by its code when the report prints codes, else when its printed name equals one of the spec point's names under the rule 11 comparison. Sizes match by their label whatever order the report lists them in. A piece is one measured garment; pieces of a size are numbered 1, 2 in the order the report presents them. Every spec point, every spec size and every piece measured for that size gets one output row; a size the report does not measure gets one piece whose rows have null `measured`, `deviation` and `within`, and so does a spec point with no printed value for a piece. A printed point that is not in the spec is not reported."""
+mutant = true
+
+[[rule]]
+id = 8
+title = "Tolerance"
+text = """A measurement is within tolerance when, after rules 5 and 6, it is at least the spec value minus `tol_minus` and at most the spec value plus `tol_plus`, both ends included. `deviation` is the measurement minus the spec value, in the house unit."""
+mutant = true
+
+[[rule]]
+id = 9
+title = "Re-measurements"
+text = """A report may re-measure some values after pressing, washing or correction, in a dated block or on a dated later page. For each point, size and piece, the value that stands is the latest-dated among the original measurement, dated by the measurement date, and every re-measurement that states a value for it. A correction placed over a value (rule 2) changes what that place prints and nothing else."""
+mutant = true
+
+[[rule]]
+id = 10
+title = "Decision"
+text = """The report is `rejected` when a critical point is out of tolerance on any piece, or when more than two points are out of tolerance on one piece; otherwise `incomplete` when a spec size was not measured or a spec point has no value for some piece; otherwise `approved_with_comments` when any point is out of tolerance; otherwise `approved`."""
+mutant = true
+
+[[rule]]
+id = 11
+title = "Output"
+text = """One JSON object with exactly the keys `style` (as printed in the report header), `measured_on` (ISO 8601, YYYY-MM-DD, whatever format the page prints; printed month names are English), `measurements` and `decision`. `measurements` holds one object per spec point, spec size and piece, ordered by the spec's point order, then the spec's size order, then piece number, each with exactly the keys `code`, `size`, `piece` (an integer), `measured`, `spec`, `deviation`, `within` (true, false or null). `measured`, `spec` and `deviation` are lengths in the house unit, written as a mixed fraction, a plain fraction or a decimal; the verifier compares them as exact numbers, so `20 1/4`, `81/4` and `20.25` are one value; `deviation` carries its sign. Missing values are JSON null. `style`, `size` and `code` compare as strings after Unicode NFKC normalisation, case folding and removal of all whitespace."""
+mutant = false
+
+# Features. rules: the policy rules an item with this feature exercises. says: what an agent that breaks them does.
+# routes: where the feature can be rendered (default: every route). units: most sizes it allows; units_min: fewest.
+
+[[feature]]
+name = "rev_set"
+rules = [4]
+says = "kept the base spec where a revision set a new value"
+
+[[feature]]
+name = "rev_change"
+rules = [4]
+says = "did not add a revision's signed change"
+
+[[feature]]
+name = "rev_twice"
+rules = [4]
+says = "applied the revisions out of order, or only one of two on the same point"
+
+[[feature]]
+name = "rev_late"
+rules = [4]
+says = "applied a revision dated after the measurement date"
+
+[[feature]]
+name = "graded"
+rules = [4]
+says = "took the base value for every size instead of grading from it"
+
+[[feature]]
+name = "cm_report"
+rules = [5]
+says = "read centimetres as inches"
+excludes = ["in_report", "fraction_dash", "fraction_glyph", "decimal_inches"]
+
+[[feature]]
+name = "in_report"
+rules = [5]
+says = "read inches as centimetres"
+excludes = ["cm_report"]
+
+[[feature]]
+name = "fraction_dash"
+rules = [5]
+says = "read 20-1/4 as 20 minus 1/4, or as two values"
+excludes = ["fraction_glyph", "decimal_inches"]
+
+[[feature]]
+name = "fraction_glyph"
+rules = [5]
+says = "lost the fraction glyph, reading 20¼ as 20 or as garbage"
+excludes = ["decimal_inches", "fine_print"]
+
+[[feature]]
+name = "decimal_inches"
+rules = [5]
+says = "took a decimal inch value for centimetres, or did not round it"
+
+[[feature]]
+name = "unit_note"
+rules = [5]
+says = "missed the unit stated only in a header note"
+requires_any = ["cm_report", "in_report"]
+
+[[feature]]
+name = "mixed_units"
+rules = [5, 9]
+says = "took the re-measurement block's values in the main table's unit"
+requires_any = ["remeasure_block", "remeasure_page"]
+
+[[feature]]
+name = "fine_print"
+rules = [6]
+says = "compared a value printed at a finer precision without rounding it"
+excludes = ["cm_report", "in_report"]
+
+[[feature]]
+name = "full_circ"
+rules = [6]
+says = "compared a full circumference to a half-measure spec"
+
+[[feature]]
+name = "round_edge"
+rules = [6]
+says = "rounded a value below the lower bound the wrong way, so a passing value failed"
+requires_any = ["cm_report", "in_report", "fine_print", "decimal_inches"]
+
+[[feature]]
+name = "round_fail"
+rules = [6]
+says = "rounded a value at the half step down, so a failing value passed"
+requires_any = ["cm_report", "in_report", "fine_print", "decimal_inches"]
+
+[[feature]]
+name = "size_order"
+rules = [7]
+says = "assigned values to sizes by position instead of by label"
+units_min = 2
+
+[[feature]]
+name = "size_missing"
+rules = [7, 10]
+says = "dropped an unmeasured size instead of reporting it null and incomplete"
+units_min = 2
+
+[[feature]]
+name = "two_pieces"
+rules = [7]
+says = "merged or dropped the second piece of a size"
+
+[[feature]]
+name = "extra_pom"
+rules = [7]
+says = "reported a point the spec does not have"
+
+[[feature]]
+name = "pom_missing"
+rules = [7, 10]
+says = "dropped an unmeasured point instead of reporting it null and incomplete"
+
+[[feature]]
+name = "pom_by_name"
+rules = [7]
+says = "could not match points printed by name alone"
+
+[[feature]]
+name = "wrap_name"
+rules = [7]
+says = "split a wrapped point name into two points"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "asym_tol"
+rules = [8]
+says = "used one tolerance both ways"
+
+[[feature]]
+name = "tol_edge"
+rules = [8]
+says = "treated a deviation equal to the tolerance as out"
+
+[[feature]]
+name = "remeasure_block"
+rules = [9]
+says = "kept the original value where a re-measurement block restated it"
+excludes = ["remeasure_page"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "remeasure_page"
+rules = [9]
+says = "kept the original value where a later page re-measured the size, or counted the page as more pieces"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "remeasure_twice"
+rules = [9]
+says = "took the earlier of two re-measurements"
+requires_any = ["remeasure_block", "remeasure_page"]
+
+[[feature]]
+name = "stamp_value"
+rules = [2]
+says = "kept the printed value under a stamped correction"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "annot_correction"
+rules = [2]
+says = "kept the printed value under a visible correction"
+routes = ["digital"]
+
+[[feature]]
+name = "critical_out"
+rules = [10]
+says = "approved a report with a critical point out of tolerance"
+excludes = ["comments_only"]
+
+[[feature]]
+name = "many_out"
+rules = [10]
+says = "approved with comments a piece with more than two points out"
+excludes = ["comments_only"]
+
+[[feature]]
+name = "comments_only"
+rules = [10]
+says = "rejected, or approved outright, a report with only minor points out"
+
+[[feature]]
+name = "status_lies"
+rules = [3]
+says = "trusted the report's pass or fail mark"
+
+[[feature]]
+name = "spec_stale"
+rules = [3, 4]
+says = "trusted the report's printed spec column"
+requires_any = ["rev_set", "rev_change", "rev_twice"]
+
+[[feature]]
+name = "diff_wrong"
+rules = [3]
+says = "trusted the report's difference column"
+
+[[feature]]
+name = "continuation"
+rules = [1, 11]
+says = "counted the continuation page as another report or lost its rows"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "a4_continuation"
+rules = [11]
+says = "lost rows across a page-size change"
+requires_any = ["continuation"]
+
+[[feature]]
+name = "scramble"
+rules = [7]
+says = "reported values in content-stream order instead of page order"
+routes = ["digital", "distilled"]
+
+[[feature]]
+name = "watermark"
+rules = [2]
+says = "read the watermark into a value"
+kind = "reading"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "white_decoy"
+rules = [2]
+says = "reported invisible text as a measurement"
+routes = ["digital", "distilled"]
+
+[images]
+# the coa images: the same software, fonts and tools draw and read a measurement report
+gen = "../coa/gen-env"
+ref = "../coa/ref-env"

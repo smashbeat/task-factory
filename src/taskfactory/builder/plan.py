@@ -161,7 +161,7 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
             aim = rng.choice(unused)
             route_ok = lambda r, aim=aim: r == aim
         fits = [x for x in names if route_ok is None or any(route_ok(r) for r in pack.feature(x).routes)]
-        best, best_score = None, -1.0
+        best, best_score = None, float("-inf")   # the best candidate is taken whatever its score
         for _ in range(80):
             least = sorted(fits, key=lambda x: (f_use[x], rng.random()))
             want = [least[0]] if rng.random() < 0.7 else [rng.choice(fits)]
