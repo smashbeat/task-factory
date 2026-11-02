@@ -13,6 +13,8 @@ from fractions import Fraction as F
 import pikepdf
 from PIL import Image, ImageDraw, ImageFont
 
+from reportlab.pdfbase import pdfmetrics
+
 from taskfactory.forge.docforge import (A4, LETTER, STAMP_FONT, Pen, finish, freetext_correction, set_meta,
                                         wrap)
 
@@ -558,7 +560,9 @@ def produce(c: Report, path, rnd):
     for key, corr in annots:        # digital only: the output is the drawn page, so the cell boxes hold
         page_no, x0, top, x1, bottom = pen.cells[key]
         ph = pen.page_sizes[page_no][1]
-        freetext_correction(path, page_no - 1, (x0 - 1, ph - bottom - 1, max(x1, x0 + 34) + 1, ph - top + 1), pg.q(corr["right"]))
+        text = pg.q(corr["right"])
+        wide = max(x1, x0 + pdfmetrics.stringWidth(text, "Helvetica", 9.5) + 6)   # the box never clips its text
+        freetext_correction(path, page_no - 1, (x0 - 1, ph - bottom - 1, wide + 1, ph - top + 1), text)
         note += f": annotation corrects {key}"
     shutil.rmtree(td)
     return note

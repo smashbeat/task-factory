@@ -62,7 +62,7 @@ def fmt_qty(x: F, unit: str, signed: bool = False, notation: str = "frac", place
     sign = "-" if x < 0 else ("+" if signed else "")
     x = abs(x)
     if unit == "cm" or notation == "decimal":
-        p = places if places is not None else (1 if unit == "cm" else _decimal_places(x))
+        p = places if places is not None else (max(1, _places_needed(x)) if unit == "cm" else _decimal_places(x))
         return f"{sign}{float(x):.{p}f}"
     whole, frac = divmod(x, 1)
     whole = int(whole)
@@ -72,6 +72,14 @@ def fmt_qty(x: F, unit: str, signed: bool = False, notation: str = "frac", place
         return f"{sign}{whole if whole else ''}{GLYPHS[frac]}"
     sep = "-" if notation == "dash" else " "
     return f"{sign}{whole}{sep}{frac.numerator}/{frac.denominator}" if whole else f"{sign}{frac.numerator}/{frac.denominator}"
+
+
+def _places_needed(x: F) -> int:
+    """Decimal places that write x exactly (at most 4)."""
+    for p in range(0, 5):
+        if (x * 10 ** p).denominator == 1:
+            return p
+    return 4
 
 
 def _decimal_places(x: F) -> int:
@@ -238,8 +246,8 @@ class Report:
         self.unit = "in" if "cm_report" in f or (inch_page and "in_report" not in f) else "cm" if "in_report" in f \
             else rnd.choice(["in", "in", "cm"])
         self.precision = rnd.choice(["1/8", "1/16"]) if self.unit == "in" else rnd.choice(["0.5", "0.1"])
-        if "fraction_glyph" in f:
-            self.precision = "1/8"
+        if "fraction_glyph" in f and self.unit == "in":
+            self.precision = "1/8"                  # glyphs exist for eighths only
         if "fine_print" in f:                       # the page prints finer than the house keeps
             self.precision = "1/8" if self.unit == "in" else "0.5"
         self.prec = PREC[self.precision]
@@ -278,7 +286,7 @@ class Report:
         self.notation = "dash" if "fraction_dash" in f else "glyph" if "fraction_glyph" in f else \
             "decimal" if "decimal_inches" in f else "frac"
         if self.printed_unit != self.unit:
-            self.printed_prec = F(1, 10) if self.printed_unit == "cm" else F(1, 16)
+            self.printed_prec = F(1, 10) if self.printed_unit == "cm" else (F(1, 8) if "fraction_glyph" in f else F(1, 16))
         elif "fine_print" in f:
             self.printed_prec = F(1, 16) if self.unit == "in" else F(1, 10)
         else:
