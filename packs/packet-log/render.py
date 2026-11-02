@@ -12,7 +12,11 @@ import numpy as np
 
 import model
 
-STRENGTHS = (1.0, 0.8, 0.6, 0.45, 0.3)   # a route that loses a frame for direwolf is turned down, then the item fails
+# Every degraded capture is pushed to the edge of what direwolf still decodes: up the ladder while it decodes
+# every frame, and the last rung that did is kept. A route that loses a frame at the first rung is turned down
+# instead, and after the lowest rung the item fails. The hidden set is then as hard as the expert tool allows.
+UP = (1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0, 4.0)
+DOWN = (0.8, 0.6, 0.45, 0.3)
 
 
 def afsk(bits: list[int], rate: int, baud: float, mark=model.MARK, space=model.SPACE) -> np.ndarray:
@@ -75,16 +79,17 @@ def degrade(src: str, dst: str, cap: model.Capture, strength: float, td: Path) -
     p, h = cap.params, cap.house
     fx: list[str] = []
     twist = h["twist"] + p.get("twist", 0.0) * strength
+    twist = max(-20.0, min(20.0, twist))      # beyond this a tone is gone, not twisted
     if twist:
         fx += ["treble", f"{twist:.1f}", "2000"]
     if h["limiter"]:
         fx += ["gain", "-l", "3"]
     if "qsb" in p:
         speed, depth = p["qsb"]
-        fx += ["tremolo", f"{speed:.2f}", f"{depth * strength:.0f}"]
+        fx += ["tremolo", f"{speed:.2f}", f"{min(100.0, depth * strength):.0f}"]
     if "echo" in p:
         delay, decay = p["echo"]
-        fx += ["echo", "0.8", "0.7", f"{delay:.0f}", f"{decay * strength:.2f}"]
+        fx += ["echo", "0.8", "0.7", f"{delay:.0f}", f"{min(0.95, decay * strength):.2f}"]
     cur = src
     if fx:
         sox(cur, str(td / "fx.wav"), *fx)
@@ -112,13 +117,22 @@ def render_item(cap: model.Capture, out_path: str, rng) -> str:
     with tempfile.TemporaryDirectory() as t:
         td = Path(t)
         write_wav(str(td / "radio.wav"), radio, cap.rate)
-        for strength in STRENGTHS:
-            degrade(str(td / "radio.wav"), str(td / "deg.wav"), cap, strength, td)
-            got = direwolf_frames(str(td / "deg.wav"))
-            if got == expected:
+        scalable = bool({"noise", "twist", "qsb", "echo"} & set(cap.params))
+        strength = None
+        for s in (UP if scalable else UP[:1]):
+            degrade(str(td / "radio.wav"), str(td / "try.wav"), cap, s, td)
+            if direwolf_frames(str(td / "try.wav")) != expected:
                 break
-        else:
-            raise RuntimeError(f"direwolf decodes {got} of {expected} frames even at strength {STRENGTHS[-1]}")
+            strength = s
+            (td / "try.wav").rename(td / "deg.wav")
+        if strength is None:
+            for s in DOWN:
+                degrade(str(td / "radio.wav"), str(td / "deg.wav"), cap, s, td)
+                if direwolf_frames(str(td / "deg.wav")) == expected:
+                    strength = s
+                    break
+            else:
+                raise RuntimeError(f"direwolf loses a frame of {expected} even at strength {DOWN[-1]}")
         with wave.open(str(td / "deg.wav")) as w:
             deg = np.frombuffer(w.readframes(w.getnframes()), dtype="<i2").astype(float) / 32767
         if other is not None:

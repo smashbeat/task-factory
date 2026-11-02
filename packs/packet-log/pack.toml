@@ -11,9 +11,9 @@ module = "pack"
 samples_max = 14
 hidden = 30
 units_max = 6
-hidden_features = [3, 5]
+hidden_features = [4, 6]
 hidden_several = 0.8
-hidden_reading = 0.6
+hidden_reading = 0.85
 styles = ["tnc2", "handheld", "sdr", "mobile"]
 routes = ["clean", "noise_lo", "noise_hi", "twist", "qsb", "drift", "multipath", "header_lie", "stereo_decoy", "stack"]
 # routes whose audio defeats a textbook demodulator (calibrated against direwolf; see docs/signals-spike.md)
