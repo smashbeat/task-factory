@@ -27,7 +27,8 @@ def drawn():
     if subprocess.run(["docker", "image", "inspect", IMAGE], capture_output=True).returncode:
         pytest.skip("gen image not built")
     r = subprocess.run(["docker", "run", "--rm", "--network", "none",
-                        "-v", f"{ROOT / 'packs' / 'coa'}:/pack:ro", "-v", f"{ROOT / 'tests' / 'probes'}:/probe:ro",
+                        "-v", f"{ROOT / 'src'}:/tf/src:ro", "-v", f"{ROOT / 'packs' / 'coa'}:/pack:ro",
+                        "-v", f"{ROOT / 'tests' / 'probes'}:/probe:ro",
                         IMAGE, "python3", "/probe/coa_render_probe.py", json.dumps(CASES)],
                        capture_output=True, text=True, timeout=300)
     assert r.returncode == 0, r.stderr

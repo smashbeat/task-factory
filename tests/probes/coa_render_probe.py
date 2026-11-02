@@ -3,6 +3,7 @@ import json
 import random
 import sys
 
+sys.path.insert(0, "/tf/src")
 sys.path.insert(0, "/pack")
 import fitz  # noqa: E402
 import pack  # noqa: E402
