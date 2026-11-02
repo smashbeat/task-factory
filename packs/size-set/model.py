@@ -556,8 +556,9 @@ def apply_features(c: Report):
         prec = c.printed_prec if unit == c.printed_unit else (F(1, 10) if unit == "cm" else F(1, 8))
         later = c.measured_on + dt.timedelta(days=rnd.randint(2, 9))
         if kind == "page":
-            s = rnd.choice(c.sizes_measured)
-            pool = [k for k in keys if k[1] == s and c.printed.get(k) is not None and k not in c.corrections]
+            clean = [sz for sz in c.sizes_measured if not any(k[1] == sz for k in c.corrections)]
+            s = rnd.choice(clean or c.sizes_measured)
+            pool = [k for k in keys if k[1] == s and c.printed.get(k) is not None]
         else:
             pool = [k for k in keys if c.printed.get(k) is not None and k not in c.corrections]
         changed = rnd.sample([k for k in pool if k not in used], min(len(pool), rnd.randint(2, 4)))
@@ -587,13 +588,14 @@ def apply_features(c: Report):
                 c.column_lies["spec"][(code, sz)] = v
                 for key in keys:
                     if key[:2] == (code, sz) and c.printed.get(key) is not None and "diff" in prints:
-                        c.column_lies["diff"][key] = c.true[key] - v
+                        c.column_lies["diff"][key] = c.house_value(key, c.printed[key], c.printed_unit) - v
     if "diff_wrong" in f:
         for key in rnd.sample([k for k in keys if c.printed.get(k) is not None], 3):
-            c.column_lies["diff"][key] = c.true[key] - force[key[:2]] + rnd.choice([-1, 1]) * c.prec
+            c.column_lies["diff"][key] = c.house_value(key, c.printed[key], c.printed_unit) - force[key[:2]] + rnd.choice([-1, 1]) * c.prec
     if "status_lies" in f:
         outs = [k for k in keys if c.printed.get(k) is not None and not
-                (force[k[:2]] - c.point(k[0])["tol_minus"] <= c.true[k] <= force[k[:2]] + c.point(k[0])["tol_plus"])]
+                (force[k[:2]] - c.point(k[0])["tol_minus"] <= c.house_value(k, c.printed[k], c.printed_unit)
+                 <= force[k[:2]] + c.point(k[0])["tol_plus"])]
         if outs:
             for k in outs:
                 c.column_lies["status"][k] = True       # marked as passing although out

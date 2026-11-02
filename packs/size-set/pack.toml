@@ -135,6 +135,8 @@ name = "fraction_glyph"
 rules = [5]
 says = "lost the fraction glyph, reading 20¼ as 20 or as garbage"
 excludes = ["decimal_inches", "fine_print"]
+# the glyph is a text-layer trap: a distilled layer loses it while the page shows it
+routes = ["digital", "distilled"]
 
 [[feature]]
 name = "decimal_inches"
