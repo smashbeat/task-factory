@@ -707,6 +707,13 @@ def page_words(page):
             cmed = cw[len(cw) // 2]
             words = [w for w in words
                      if not (w["conf"] < 60 and (w["x1"] - w["x0"]) / max(1, len(w["text"])) > 3 * cmed)]
+            # the same stretched reading with a little more confidence, lying over a confident word of its line:
+            # the word is the print, the stretched reading is the rule running under it
+            words = [w for w in words
+                     if not (w["conf"] < 70 and (w["x1"] - w["x0"]) / max(1, len(w["text"])) > 3 * cmed
+                             and any(o is not w and o["conf"] >= 80 and overlap(o, w) > 0.5
+                                     and (o["x1"] - o["x0"]) / max(1, len(o["text"])) <= 2 * cmed
+                                     for o in words))]
     # table rules and smudges come back as short, low-confidence pseudo-words; drop them
     words = [w for w in words if not (w["conf"] < 35 and len(w["text"]) <= 2 and w["text"] not in KEEP_PUNCT)
              and not (w["conf"] < 50 and len(w["text"]) <= 2 and w["text"].isalpha()
