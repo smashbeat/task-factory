@@ -35,7 +35,7 @@ class Plan:
 def _consistent(pack: Domain, feats: set[str], route: str, units: int) -> bool:
     for name in feats:
         f = pack.feature(name)
-        if route not in f.routes or units > f.units or set(f.excludes) & feats:
+        if route not in f.routes or not f.units_min <= units <= f.units or set(f.excludes) & feats:
             return False
         if f.requires_any and not set(f.requires_any) & feats:
             return False
@@ -87,6 +87,7 @@ def _candidate(pack, rng, want: list[str], routes_w, styles_w, item_id, seed, k_
         return None
     route = rng.choices(routes, weights=[routes_w(r) for r in routes])[0]
     cap = min([pack.units_max] + [pack.feature(n).units for n in feats])
+    units_lo = max([units_lo] + [pack.feature(n).units_min for n in feats])
     if units_lo > cap:
         return None
     units = rng.randint(units_lo, cap)

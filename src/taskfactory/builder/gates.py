@@ -43,7 +43,8 @@ def pack_gate(pack: Domain) -> GateResult:
             if x.requires_any:
                 feats.add(rng.choice(x.requires_any))
             route = rng.choice(x.routes)
-            it = ItemPlan(f"probe{i}", rng.choice(pack.styles), route, 1, frozenset(feats))
+            units = max(pack.feature(n).units_min for n in feats)
+            it = ItemPlan(f"probe{i}", rng.choice(pack.styles), route, units, frozenset(feats))
             if buildable(pack, it, 0):
                 ok = True
                 break

@@ -24,6 +24,7 @@ class Feature:
     says: str
     routes: tuple[str, ...]
     units: int
+    units_min: int = 1
     requires_any: tuple[str, ...] = ()
     excludes: tuple[str, ...] = ()
     kind: str = "rule"
@@ -59,8 +60,15 @@ class Domain:
 
 
 def _module(root: Path, name: str) -> ModuleType:
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
+    """Load the pack's adapter so that its plain sibling imports (`import model`) resolve to its own files:
+    the pack root goes first on sys.path, and siblings another pack already loaded are forgotten."""
+    if str(root) in sys.path:
+        sys.path.remove(str(root))
+    sys.path.insert(0, str(root))
+    for mod_name, mod in list(sys.modules.items()):
+        f = getattr(mod, "__file__", None)
+        if f and "." not in mod_name and Path(f).parent != root and (Path(f).parent / "pack.toml").exists():
+            del sys.modules[mod_name]
     spec = importlib.util.spec_from_file_location(f"taskfactory_pack_{root.name}_{name}", root / f"{name}.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -81,6 +89,7 @@ def load_domain(root: Path) -> Domain:
             says=f.get("says", ""),
             routes=tuple(f.get("routes", routes)),
             units=f.get("units", units_max),
+            units_min=f.get("units_min", 1),
             requires_any=tuple(f.get("requires_any", ())),
             excludes=tuple(f.get("excludes", ())),
             kind=f.get("kind", "rule"),

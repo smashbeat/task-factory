@@ -1,0 +1,203 @@
+# packet-log domain pack: recordings of 1200 baud AFSK packet radio (AX.25, APRS) with an operator's log that
+# may be wrong, read by a decoder the agent must write. Rules and features are data; the policy, the sample
+# plan and the attribution profile are produced from this file.
+
+[pack]
+name = "packet-log"
+item = "capture"
+unit = "frame"
+ext = "wav"
+module = "pack"
+samples_max = 14
+hidden = 30
+units_max = 6
+hidden_features = [3, 5]
+hidden_several = 0.8
+hidden_reading = 0.6
+styles = ["tnc2", "handheld", "sdr", "mobile"]
+routes = ["clean", "noise_lo", "noise_hi", "twist", "qsb", "drift", "multipath", "header_lie", "stereo_decoy", "stack"]
+# routes whose audio defeats a textbook demodulator (calibrated against direwolf; see docs/signals-spike.md)
+reading_routes = ["noise_hi", "twist", "qsb", "drift", "multipath", "stack"]
+route_rules = { header_lie = [2], stereo_decoy = [1, 2] }
+
+[[rule]]
+id = 1
+title = "Scope"
+text = """One capture is one WAV recording of a packet radio channel at 1200 baud AFSK (Bell 202 tones, 1200 Hz mark and 2200 Hz space, AX.25 version 2.2 framing) together with the operator's log (SPEC.json). The log's `station` (our callsign) and `radio_channel` (the index of the recording channel that carries the radio, 0 for the first) are authoritative. Its `sample_rate` and its `heard` lines are the operator's notes: an aid to reading, never a source (rule 2)."""
+mutant = false
+
+[[rule]]
+id = 2
+title = "What a frame is"
+text = """The audio decides. The recording's true sample rate is the one of 8000, 11025, 22050, 44100 or 48000 Hz at which the two tones measure 1200 and 2200 Hz; the WAV header and the log may state another rate. Samples are 8-bit unsigned or 16-bit signed PCM as the header says. Only the radio channel is read; any other channel is ignored. A frame counts only when its frame check sequence matches (AX.25 2.2 section 3.7: CRC-16/X25 over the address, control, protocol identifier and information fields). A frame whose FCS does not match, or that is cut short, is not reported and is not repaired by guessing bits. A sender's clock may be off by up to 2 percent, so its baud rate and its tones scale together."""
+mutant = true
+
+[[rule]]
+id = 3
+title = "Addresses"
+text = """Each frame reports `source` and `destination` as the callsign, with `-` and the SSID appended when the SSID is not 0, and `path` as the list of digipeater addresses in order, formatted the same way, with `*` appended to the last address whose H (has-been-repeated) bit is set and to no other."""
+mutant = true
+
+[[rule]]
+id = 4
+title = "Kinds and order"
+text = """A UI frame (control field 0x03, with or without the poll bit) whose protocol identifier is 0xF0 is APRS. Its `kind` is `position` when the information field starts with `!`, `=`, `/` or `@`; `status` when it starts with `>`; `message` when it starts with `:`, a nine-character addressee and `:`, except that a message whose text is `ack` followed by a message id is an `ack`; any other APRS information is `other`. Any other frame (another protocol identifier, or a control field that is not UI) is `non_aprs`, and its `info` is its information field, empty when it has none. `info` is the information field as text, byte for byte in ISO 8859-1. `t_ms` is the time, in whole milliseconds from the start of the recording, at which the frame's closing flag ends; the verifier allows 50 ms either way. Frames are listed in order of `t_ms`."""
+mutant = true
+
+[[rule]]
+id = 5
+title = "Duplicates"
+text = """A frame with the same `source`, `destination` and `info` as the most recent earlier frame with those values, heard no more than 30 s after it, is a duplicate: its `dup_of` is the index in `frames` of the first frame of that run (the earlier frame's own `dup_of` when it has one, else its index). Every other frame has `dup_of` null. A duplicate is still listed."""
+mutant = true
+
+[[rule]]
+id = 6
+title = "Messages"
+text = """`messages` has one entry per message, in order of first transmission. A message is identified by `from` (the source), `to` (the addressee without trailing spaces) and `id` (the characters after the last `{` at the end of the text; null when there is none, and a message with no id is identified by its text instead). `text` is the message text without the `{id`. `sent` counts every frame carrying the message, duplicates included. `status` is `acked` when the addressee later sent an `ack` with the same id to the sender, else `open`. Acks are not messages."""
+mutant = true
+
+[[rule]]
+id = 7
+title = "Positions"
+text = """`positions` maps each source that sent a position frame to its latest position frame by `t_ms`, as `{"t_ms": ..., "info": ...}`."""
+mutant = true
+
+[[rule]]
+id = 8
+title = "Output"
+text = """One JSON object with exactly the keys `frames`, `messages` and `positions`. Each frame has exactly the keys `t_ms`, `source`, `destination`, `path`, `kind`, `info`, `dup_of`; each message exactly `from`, `to`, `id`, `text`, `sent`, `status`. Missing values are JSON null."""
+mutant = false
+
+# Features. rules: the policy rules an item with this feature exercises. says: what an agent that breaks them does.
+# units_min: the fewest frames a capture needs to carry the feature.
+# kind = "reading" marks a feature that only makes the audio harder to decode.
+
+[[feature]]
+name = "dup_retry"
+rules = [5]
+units_min = 2
+says = "did not mark a repeat within 30 s as a duplicate"
+
+[[feature]]
+name = "dup_late"
+rules = [5]
+units_min = 2
+says = "marked a repeat after 30 s as a duplicate"
+
+[[feature]]
+name = "near_dup"
+rules = [5]
+units_min = 2
+says = "marked a frame that differs by one character as a duplicate"
+
+[[feature]]
+name = "pos_dup"
+rules = [5, 7]
+units_min = 2
+says = "counted a repeated position as a new one"
+
+[[feature]]
+name = "msg_ack"
+rules = [6]
+units_min = 2
+says = "left an acknowledged message open"
+
+[[feature]]
+name = "msg_retry"
+rules = [5, 6]
+units_min = 3
+says = "counted a retried message once"
+
+[[feature]]
+name = "msg_noid"
+rules = [6, 8]
+says = "dropped a message without an id"
+
+[[feature]]
+name = "ack_other"
+rules = [6]
+units_min = 2
+says = "closed a message on an ack for another id"
+
+[[feature]]
+name = "pos_update"
+rules = [7]
+units_min = 2
+says = "kept the first position instead of the latest"
+
+[[feature]]
+name = "digi_h"
+rules = [3]
+says = "put the repeated mark on every hop, or on none"
+
+[[feature]]
+name = "ssid_hi"
+rules = [3]
+says = "misread a two-digit SSID"
+
+[[feature]]
+name = "non_ui"
+rules = [4]
+says = "read a frame that is not UI as APRS"
+
+[[feature]]
+name = "pid_other"
+rules = [4]
+says = "read a UI frame with another protocol identifier as APRS"
+
+[[feature]]
+name = "status_frame"
+rules = [4]
+says = "misread a status frame"
+
+[[feature]]
+name = "bad_fcs"
+rules = [2]
+says = "repaired a frame with a bad FCS into a duplicate"
+
+[[feature]]
+name = "abort"
+rules = [2]
+says = "reported a frame that was cut short"
+
+[[feature]]
+name = "shared_flag"
+rules = [2, 4]
+units_min = 2
+says = "lost the second of two frames sharing a flag"
+
+[[feature]]
+name = "log_typo"
+rules = [2]
+says = "copied the operator's typo into a frame"
+
+[[feature]]
+name = "log_missing"
+rules = [2]
+says = "dropped a frame the operator did not log"
+
+[[feature]]
+name = "log_extra"
+rules = [2]
+says = "reported a frame the operator logged but never sent"
+
+[[feature]]
+name = "quiet_tx"
+rules = [2]
+units_min = 2
+says = "lost a transmission a quarter as loud as the rest"
+kind = "reading"
+
+[[feature]]
+name = "long_info"
+rules = [4]
+says = "truncated a long information field"
+
+[[feature]]
+name = "latin1"
+rules = [4]
+says = "mangled a non-ASCII byte in the information field"
+
+[images]
+gen = "gen-env"
+ref = "ref-env"

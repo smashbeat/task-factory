@@ -195,6 +195,20 @@ def wav_pack(tmp_path):
     return root
 
 
+PACKET = Path(__file__).parent.parent / "packs" / "packet-log"
+
+
+def test_a_feature_may_need_several_units():
+    pkt = load_domain(PACKET)
+    assert pkt.feature("msg_retry").units_min == 3 and pkt.feature("digi_h").units_min == 1
+    assert pack_gate(pkt).status != "fail"
+    plan = make_plan(pkt, seed=1)
+    for it in plan.samples + plan.hidden:
+        need = max(pkt.feature(n).units_min for n in it.features)
+        assert it.units >= need, f"{it.id} has {it.units} units but {sorted(it.features)} need {need}"
+    assert any("msg_retry" in it.features for it in plan.samples)
+
+
 def test_a_pack_declares_its_item_file_extension(tmp_path, pack):
     assert pack.ext == "pdf"
     assert load_domain(wav_pack(tmp_path)).ext == "wav"
