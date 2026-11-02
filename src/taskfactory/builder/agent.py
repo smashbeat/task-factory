@@ -20,7 +20,7 @@ REFERENCE_PROMPT = """You maintain the reference solution of a benchmark task. I
 It must implement `policy.md` exactly, for every {item} the generator can draw.
 
 The reference just failed on the {item}s in `failing/`. The {item}s in `passing/` already read correctly and must
-keep reading correctly: a fix that breaks one of them is rejected. For each one you have the input (`ID.pdf`, `ID.spec.json`),
+keep reading correctly: a fix that breaks one of them is rejected. For each one you have the input (`ID.{ext}`, `ID.spec.json`),
 the expected output (`ID.expected.json`) and the differences the verifier reported (`ID.diff.txt`).
 
 Fix `intake.py` so it reads these correctly. Rules:
@@ -45,7 +45,7 @@ bad = 0
 for spec in sorted(Path("failing").glob("*.spec.json")) + sorted(Path("passing").glob("*.spec.json")):
     i, d = spec.name[: -len(".spec.json")], spec.parent
     out = Path("/tmp") / (i + ".json")
-    p = subprocess.run(["python3", "intake.py", str(d / (i + ".pdf")), str(spec), str(out)], capture_output=True, text=True, timeout={limit})
+    p = subprocess.run(["python3", "intake.py", str(d / (i + ".{ext}")), str(spec), str(out)], capture_output=True, text=True, timeout={limit})
     if p.returncode != 0:
         bad += 1
         print(i, "exit", p.returncode, p.stderr[-600:])
@@ -78,7 +78,7 @@ def make_workspace(pack: Domain, builds: Path | list[Path], attempt: int,
             i, n = r["id"], prefix + r["id"]
             d = ws / ("passing" if r["ok"] else "failing")
             d.mkdir(exist_ok=True)
-            shutil.copy(build / "pdf" / f"{i}.pdf", d / f"{n}.pdf")
+            shutil.copy(build / pack.ext / f"{i}.{pack.ext}", d / f"{n}.{pack.ext}")
             shutil.copy(build / "specs" / f"{i}.json", d / f"{n}.spec.json")
             shutil.copy(build / "truth" / f"{i}.json", d / f"{n}.expected.json")
             if not r["ok"]:
@@ -93,11 +93,11 @@ def fix_reference(pack: Domain, build: Path | list[Path], image: str, attempt: i
     ws, failing = make_workspace(pack, builds, attempt, start)
     checker = Path(tempfile.mkdtemp(prefix=f"tf-checker-{attempt}-"))
     check = checker / "check.sh"
-    check.write_text(CHECK.format(image=image, limit=limit, ws=ws.resolve()))
+    check.write_text(CHECK.format(image=image, limit=limit, ws=ws.resolve(), ext=pack.ext))
     check.chmod(0o555)
     checker.chmod(0o555)
     digest = hashlib.sha256(check.read_bytes()).hexdigest()
-    prompt = REFERENCE_PROMPT.format(item=pack.item, limit=limit, check=check.resolve())
+    prompt = REFERENCE_PROMPT.format(item=pack.item, limit=limit, check=check.resolve(), ext=pack.ext)
     # Edits are confined to the workspace (the working directory); the only command allowed is the checker,
     # by absolute path, which sits outside the workspace where the agent cannot change it.
     cmd = ["claude", "-p", prompt, "--output-format", "json", "--permission-mode", "acceptEdits",

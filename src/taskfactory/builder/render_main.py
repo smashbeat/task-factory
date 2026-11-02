@@ -21,21 +21,21 @@ def _one(entry: dict) -> dict:
     seed = json.loads((BUILD / "manifest.json").read_text())["seed"]
     rng = random.Random(f"{seed}-{entry['id']}")
     item = pack.module.build(entry["id"], entry["house"], entry["route"], entry["units"], frozenset(entry["features"]), rng)
-    pdf = BUILD / "pdf" / f"{entry['id']}.pdf"
+    path = BUILD / pack.ext / f"{entry['id']}.{pack.ext}"
     try:
-        note = pack.module.render(item, pdf, rng)
+        note = pack.module.render(item, path, rng)
     except Exception as e:  # reported, not raised: the gate decides
         return {"id": entry["id"], "error": f"{type(e).__name__}: {e}"}
     want = json.loads((BUILD / "truth" / f"{entry['id']}.json").read_text())
     got = json.loads(json.dumps(pack.module.truth(item), ensure_ascii=False))
-    return {"id": entry["id"], "note": note, "truth_unchanged": got == want, "bytes": pdf.stat().st_size}
+    return {"id": entry["id"], "note": note, "truth_unchanged": got == want, "bytes": path.stat().st_size}
 
 
 def main() -> None:
     global PACK, BUILD
     PACK, BUILD = Path(sys.argv[1]), Path(sys.argv[2])
     workers = int(sys.argv[3]) if len(sys.argv) > 3 else 4
-    (BUILD / "pdf").mkdir(exist_ok=True)
+    (BUILD / load_domain(PACK).ext).mkdir(exist_ok=True)
     m = json.loads((BUILD / "manifest.json").read_text())
     with Pool(workers) as pool:
         results = pool.map(_one, m["samples"] + m["hidden"])

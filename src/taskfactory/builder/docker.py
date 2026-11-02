@@ -57,13 +57,13 @@ def reference(pack: Domain, build: Path, solution: Path | None = None, workers: 
         inp.mkdir(), out.mkdir(), sol.mkdir()
         out.chmod(0o777)
         shutil.copy(solution, sol / "intake.py")
-        for pdf in (build / "pdf").glob("*.pdf"):
-            shutil.copy(pdf, inp / pdf.name)
-            shutil.copy(build / "specs" / f"{pdf.stem}.json", inp / f"{pdf.stem}.spec.json")
+        for item in (build / pack.ext).glob(f"*.{pack.ext}"):
+            shutil.copy(item, inp / item.name)
+            shutil.copy(build / "specs" / f"{item.stem}.json", inp / f"{item.stem}.spec.json")
         cmd = ["docker", "run", "--rm", "--network", "none",
                "-v", f"{SRC}:/tf/src:ro", "-v", f"{sol}:/sol:ro", "-v", f"{inp}:/in:ro", "-v", f"{out}:/out",
                image(pack, "ref"), "python3", "-I", "/tf/src/taskfactory/builder/reference_main.py",
-               "/sol/intake.py", "/in", "/out", str(workers)]
+               "/sol/intake.py", "/in", "/out", str(workers), pack.ext]
         subprocess.run(cmd, capture_output=True, text=True, timeout=7200, check=True)
         spec = importlib.util.spec_from_file_location("tf_compare", pack.root / "task" / "tests" / "compare.py")
         compare = importlib.util.module_from_spec(spec)

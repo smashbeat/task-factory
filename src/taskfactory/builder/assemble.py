@@ -26,12 +26,13 @@ def assemble(pack: Domain, build: Path, task: Path, name: str) -> Path:
     hidden, truth = task / "tests" / "hidden", task / "tests" / "truth"
     for d in (samples, hidden, truth):
         d.mkdir(parents=True, exist_ok=True)
+    ext = pack.ext
     for i in m["samples"]:
-        shutil.copy(build / "pdf" / f"{i['id']}.pdf", samples / f"{i['id']}.pdf")
+        shutil.copy(build / ext / f"{i['id']}.{ext}", samples / f"{i['id']}.{ext}")
         shutil.copy(build / "specs" / f"{i['id']}.json", samples / f"{i['id']}.spec.json")
         shutil.copy(build / "truth" / f"{i['id']}.json", samples / f"{i['id']}.expected.json")
     for i in m["hidden"]:
-        shutil.copy(build / "pdf" / f"{i['id']}.pdf", hidden / f"{i['id']}.pdf")
+        shutil.copy(build / ext / f"{i['id']}.{ext}", hidden / f"{i['id']}.{ext}")
         shutil.copy(build / "specs" / f"{i['id']}.json", hidden / f"{i['id']}.spec.json")
         shutil.copy(build / "truth" / f"{i['id']}.json", truth / f"{i['id']}.truth.json")
     shutil.copy(build / "policy.md", task / "environment" / "policy.md")

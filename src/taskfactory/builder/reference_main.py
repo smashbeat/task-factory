@@ -1,7 +1,7 @@
 """Runs inside the task's environment image: the reference solution on every item. No answers are mounted.
 
-python3 -I reference_main.py SOLUTION_FILE INPUT_DIR OUT_DIR [WORKERS]
-INPUT_DIR holds ID.pdf and ID.spec.json (read-only); OUT_DIR receives ID.json and ID.run.json.
+python3 -I reference_main.py SOLUTION_FILE INPUT_DIR OUT_DIR [WORKERS] [EXT]
+INPUT_DIR holds ID.EXT (pdf by default) and ID.spec.json (read-only); OUT_DIR receives ID.json and ID.run.json.
 Scoring happens outside the container, so the solution never has the truth within reach.
 """
 from __future__ import annotations
@@ -15,6 +15,7 @@ from multiprocessing import Pool
 from pathlib import Path
 
 SOL = IN = OUT = None
+EXT = "pdf"
 LIMIT = 120
 PARALLEL_CAP = 900  # contention only: the real limit is checked alone afterwards
 
@@ -23,7 +24,7 @@ def _one(args: tuple[str, float]) -> dict:
     item_id, cap = args
     t0 = time.time()
     try:
-        p = subprocess.run(["python3", str(SOL), str(IN / f"{item_id}.pdf"), str(IN / f"{item_id}.spec.json"),
+        p = subprocess.run(["python3", str(SOL), str(IN / f"{item_id}.{EXT}"), str(IN / f"{item_id}.spec.json"),
                             str(OUT / f"{item_id}.json")], capture_output=True, text=True, timeout=cap,
                            env={**os.environ, "OMP_THREAD_LIMIT": "1"})
         rc, err = p.returncode, p.stderr[-400:]
@@ -33,10 +34,11 @@ def _one(args: tuple[str, float]) -> dict:
 
 
 def main() -> None:
-    global SOL, IN, OUT
+    global SOL, IN, OUT, EXT
     SOL, IN, OUT = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
     workers = int(sys.argv[4]) if len(sys.argv) > 4 else 4
-    ids = sorted(p.stem for p in IN.glob("*.pdf"))
+    EXT = sys.argv[5] if len(sys.argv) > 5 else "pdf"
+    ids = sorted(p.stem for p in IN.glob(f"*.{EXT}"))
     with Pool(workers) as pool:
         runs = pool.map(_one, [(i, PARALLEL_CAP) for i in ids])
     by_id = {r["id"]: r for r in runs}

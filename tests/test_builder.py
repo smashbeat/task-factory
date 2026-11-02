@@ -183,6 +183,42 @@ def build_and_fake_pdfs(build):
 build_fn = build
 
 
+def wav_pack(tmp_path):
+    """The coa pack declared as a WAV pack: the builder must take the item file type from the pack."""
+    import shutil
+
+    root = tmp_path / "wavpack"
+    shutil.copytree(COA, root, ignore=shutil.ignore_patterns("__pycache__", "task"))
+    shutil.copytree(COA / "task", root / "task", ignore=shutil.ignore_patterns("__pycache__"))
+    toml = (root / "pack.toml").read_text().replace('name = "coa-intake"', 'name = "coa-intake"\next = "wav"', 1)
+    (root / "pack.toml").write_text(toml)
+    return root
+
+
+def test_a_pack_declares_its_item_file_extension(tmp_path, pack):
+    assert pack.ext == "pdf"
+    assert load_domain(wav_pack(tmp_path)).ext == "wav"
+
+
+def test_assemble_copies_items_with_the_packs_extension(tmp_path):
+    import json
+
+    from taskfactory.builder.assemble import assemble
+
+    root = wav_pack(tmp_path)
+    wav = load_domain(root)
+    build = tmp_path / "build"
+    build_fn(root, seed=1, out=build)
+    (build / "wav").mkdir()
+    for f in (build / "truth").glob("*.json"):
+        (build / "wav" / f"{f.stem}.wav").write_bytes(b"RIFF")
+    task = assemble(wav, build, tmp_path / "task", "coa-intake-s1")
+    m = json.loads((build / "manifest.json").read_text())
+    assert len(list((task / "tests" / "hidden").glob("*.wav"))) == len(m["hidden"])
+    assert len(list((task / "environment" / "samples").glob("*.wav"))) == len(m["samples"])
+    assert not list((task / "tests" / "hidden").glob("*.pdf"))
+
+
 def test_reference_gate_fails_closed_on_missing_items(tmp_path):
     import json
 
