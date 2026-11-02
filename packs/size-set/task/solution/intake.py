@@ -1257,6 +1257,25 @@ def last_glyph_box(im, w, ndigits=None):
 
 # ------------------------------------------------------------------ tokens and cells
 
+DENOMS = {2, 4, 8, 16, 32}
+
+
+def sane_fraction(t):
+    """`7/18` cannot print on a garment report: the denominator lost or gained a glyph. A stray leading 1 is
+    dropped when that makes a real fraction; otherwise the token is unreadable (None)."""
+    m = re.match(r"^([+\-−]?)(?:(\d{1,3})[- ])?(\d{1,2})/(\d{1,3})$", t)
+    if not m:
+        return t
+    sign, whole, num, den = m.groups()
+    n, d = int(num), int(den)
+    if d in DENOMS and n < d:
+        return t
+    if den.startswith("1") and len(den) > 1 and int(den[1:]) in DENOMS and n < int(den[1:]):
+        d = int(den[1:])
+        return f"{sign}{whole + ' ' if whole else ''}{n}/{d}"
+    return None
+
+
 def unglue(t, expected=None):
     """OCR glues a mixed fraction: `243/16` is 24 3/16. The split whose numerator is under the denominator
     and whose value lies nearest the expected one wins."""
@@ -1323,7 +1342,10 @@ def cell_value(tokens, im, expected=None):
             if g:
                 out.append(f"{GLYPHS[g].numerator}/{GLYPHS[g].denominator}")
                 continue
-        out.append(unglue(t, expected))
+        fixed = sane_fraction(unglue(t, expected))
+        if fixed is None:
+            return None
+        out.append(fixed)
     joined = " ".join(out)
     if not re.search(r"\d", joined):
         return None
@@ -1488,6 +1510,10 @@ def parse_header(ln, prev, sizes, block, im=None):
     size labels over Spec/Act/Diff sub-columns)."""
     low = [w["text"].strip(".:").lower() for w in ln["words"]]
     if "act" in low and prev:
+        if isinstance(prev, list):
+            near = [l for l in prev if abs(l["yc"] - prev[-1]["yc"]) <= 8]
+            prev = {"yc": prev[-1]["yc"], "words": sorted((w for l in near for w in l["words"]), key=lambda w: w["x0"])}
+            prev["text"] = " ".join(w["text"] for w in prev["words"])
         repair_size_labels(prev, sizes, im)
     elif len(size_tokens(ln, sizes)) >= 1:
         repair_size_labels(ln, sizes, im)
@@ -1575,6 +1601,11 @@ def _header_cols(ln, prev, sizes, block):
             cols.append({"x": x, "size": lab[1], "piece": lab[2], "lx0": w["x0"], "lx1": w["x1"]})
         return cols or None
     runs = label_runs(words, sizes)
+    rowish = (words and CODE_RX.match(words[0]["text"].strip())) or any(
+        TOKEN_FRAC.match(t) or TOKEN_MIXED.match(t) or re.match(r"^[+\-−]?\d+[.,]\d+$", t) or re.match(r"^[+\-−]\d", t)
+        for t in low) or any(piece > 2 for _, _, _, piece in runs)
+    if rowish:
+        return None
     if len(runs) >= 1 and (len(runs) >= 2 or heads):
         for x0, x1, sw, piece in runs:
             cols.append({"x": (x0 + x1) / 2, "size": sw, "piece": piece, "lx0": x0, "lx1": x1})
@@ -1688,14 +1719,15 @@ def walk(pages, images, spec, stamps):
     for pi, lines in enumerate(pages):
         im = images[pi]
         prev = None
+        recent = []            # the last few lines, for a header whose labels OCR split over two lines
         page_unit = None
         for ln in lines:
             text = ln["text"]
             low = text.lower()
-            if re.search(r"\bunits?\b|measurements|^values in\b", low) and unit_in(text) and not re.search(r"\d{4}", low):
-                page_unit = unit_in(text)
-                if section["remeasure"]:
-                    section["unit"] = page_unit
+            recent = (recent + [ln])[-3:]
+            if re.search(r"\bunits?\b|measurements", low) and unit_in(text) and not re.search(r"\d{4}", low) \
+                    and not re.match(r"^values in\b", low):
+                page_unit = unit_in(text)          # a page header's unit: the main unit, or a re-measured page's
             # header fields
             m = re.search(r"style(?:\s*(?:no\.?|reference))?[\s:;.]*([a-z0-9][a-z0-9\-]{4,})", low)
             if style is None and m and not m.group(1).startswith("re") and re.search(r"\d", m.group(1)):
@@ -1729,8 +1761,8 @@ def walk(pages, images, spec, stamps):
                     prev = ln
                     trace("remeasure-start", ln)
                     continue
-            if section["remeasure"] and re.search(r"^values in\b", low) and unit_in(text):
-                section["unit"] = unit_in(text)
+            if section["remeasure"] and re.match(r"^values in\b", low) and unit_in(text):
+                section["unit"] = unit_in(text)    # a block's own unit line, under its title
                 prev = ln
                 trace("values-in", ln)
                 continue
@@ -1762,7 +1794,7 @@ def walk(pages, images, spec, stamps):
                 trace("remeasure-header", ln)
                 continue
             # a table header
-            hc = parse_header(ln, prev, sizes, block, im)
+            hc = parse_header(ln, recent[-3:-1] if len(recent) > 1 else None, sizes, block, im)
             if hc:
                 (cols, name_x1), last_row = hc, None
                 rcols = None
