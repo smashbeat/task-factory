@@ -59,3 +59,10 @@ Rule 5: `dup_retry`, `dup_late`, `near_dup`, `pos_dup`. Rule 6: `msg_ack`, `msg_
 
 - A direwolf-quality decoder in pure Python is the reference. `micro-aprs` shows it can be done; the fix loop has to get there with the truth in hand. If it cannot, the hidden band narrows until it can.
 - The difficulty band on noise alone is narrow (0.3 to 0.38). Stacks and the rule traps carry the rest.
+
+## Pilot log
+
+- 2026-11-02, seed 1: 10 samples, 29 hidden; 10 of 10 routes and all 23 features in the samples; every mutant rule decides 5 or 6 hidden items.
+- Render: 39 of 39 decoded by direwolf. Strengths used: 31 at 1.0, 4 at 0.8, 4 at 0.6. A quarter-level frame under heavy noise was lost even by direwolf, so `quiet_tx` stays off `noise_hi` and `stack`, and the ladder has five rungs.
+- Reference: the hand-written decoder picked the wrong rate on an 8-bit capture because the keyed tones spread their energy; it now decodes at every standard rate and keeps the one with the most valid frames. It then dropped one frame on four captures (noise, multipath, stack). One round of the Opus fix loop replaced transition counting with a clock-recovery loop sampling at bit centres, plus an ensemble of loop gains whose valid frames are merged. Reference 39 of 39, holdout seed 1001 40 of 40, slowest item 15 s. The fix is general: no id, name or value from the captures appears in it.
+- Task assembled at `out/build-pkt-1f/task/packet-log-s1` (57 MB).
