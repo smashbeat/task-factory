@@ -12,7 +12,7 @@ import numpy as np
 
 import model
 
-STRENGTHS = (1.0, 0.7, 0.45)   # a route that loses a frame for direwolf is turned down, then the item fails
+STRENGTHS = (1.0, 0.8, 0.6, 0.45, 0.3)   # a route that loses a frame for direwolf is turned down, then the item fails
 
 
 def afsk(bits: list[int], rate: int, baud: float, mark=model.MARK, space=model.SPACE) -> np.ndarray:
@@ -100,8 +100,9 @@ def degrade(src: str, dst: str, cap: model.Capture, strength: float, td: Path) -
 
 
 def direwolf_frames(path: str) -> int:
-    out = subprocess.run(["atest", "-B", "1200", "-F", "0", path], capture_output=True, text=True).stdout
-    return len(re.findall(r"DECODED\[", out))
+    # bytes, not text: an information field may hold ISO 8859-1 bytes that are not UTF-8
+    out = subprocess.run(["atest", "-B", "1200", "-F", "0", path], capture_output=True).stdout
+    return len(re.findall(rb"DECODED\[", out))
 
 
 def render_item(cap: model.Capture, out_path: str, rng) -> str:

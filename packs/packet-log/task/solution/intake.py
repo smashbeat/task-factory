@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Reference decoder for the packet-log task: python3 intake.py IN.wav SPEC.json OUT.json
 
-Reads the radio channel, finds the true sample rate from the tones, demodulates 1200 baud AFSK with a
-quadrature correlator and per-tone normalisation, recovers bits from transition spacing, parses HDLC frames
-and checks each FCS, then applies the operator policy (kinds, paths, duplicates, messages, positions).
+Reads the radio channel, demodulates 1200 baud AFSK at each standard sample rate with a quadrature correlator
+and per-tone normalisation, recovers bits from transition spacing, parses HDLC frames and checks each FCS,
+keeps the rate that yields the most valid frames, then applies the operator policy (kinds, paths,
+duplicates, messages, positions).
 """
 from __future__ import annotations
 
@@ -38,24 +39,22 @@ def read_wav(path: str, channel: int):
     return rate, x - np.mean(x)
 
 
-def true_rate(x: np.ndarray, header_rate: int) -> int:
-    """The standard rate at which the two tones sit at 1200 and 2200 Hz."""
-    n = min(len(x), 1 << 20)
-    seg = x[:n] * np.hanning(n)
-    p = np.abs(np.fft.rfft(seg)) ** 2
-    best, best_score = header_rate, -1.0
-    for r in RATES:
-        score = 0.0
-        for tone in (MARK, SPACE):
-            f_bin = tone * n / r            # where the tone falls if the samples are really at rate r
-            lo, hi = int(f_bin * 0.965), int(f_bin * 1.035) + 1
-            if hi >= len(p):
-                score = -1.0
-                break
-            score += p[lo:hi].max()
-        if score > best_score:
-            best, best_score = r, score
-    return best
+def decode_at(x: np.ndarray, rate: int):
+    bits, ends = bits_with_times(x, rate)
+    return hdlc_frames(bits, ends)
+
+
+def best_decode(x: np.ndarray, header_rate: int):
+    """Decode at every standard rate and keep the one that yields the most frames with a valid FCS: a
+    matching FCS is unambiguous evidence of the true rate, where a tone's spectrum (spread by the keying) is not.
+    The header's rate wins ties."""
+    order = [header_rate] + [r for r in RATES if r != header_rate]
+    best, best_frames = header_rate, decode_at(x, header_rate)
+    for r in order[1:]:
+        fr = decode_at(x, r)
+        if len(fr) > len(best_frames):
+            best, best_frames = r, fr
+    return best, best_frames
 
 
 # ------------------------------------------------------------------ demodulation
@@ -237,9 +236,7 @@ def apply_policy(decoded):
 def main(wav_path, spec_path, out_path):
     spec = json.load(open(spec_path))
     header_rate, x = read_wav(wav_path, int(spec.get("radio_channel", 0)))
-    rate = true_rate(x, header_rate)
-    bits, ends = bits_with_times(x, rate)
-    decoded = hdlc_frames(bits, ends)
+    rate, decoded = best_decode(x, header_rate)
     with open(out_path, "w") as f:
         json.dump(apply_policy(decoded), f, ensure_ascii=False, indent=1)
 

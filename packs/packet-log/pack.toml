@@ -187,6 +187,8 @@ rules = [2]
 units_min = 2
 says = "lost a transmission a quarter as loud as the rest"
 kind = "reading"
+# a quiet frame under heavy noise is lost even by direwolf
+routes = ["clean", "noise_lo", "twist", "qsb", "drift", "multipath", "header_lie", "stereo_decoy"]
 
 [[feature]]
 name = "long_info"
