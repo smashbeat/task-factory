@@ -1816,7 +1816,7 @@ def walk(pages, images, spec, stamps):
                 sz = [w for w in groups.get("size", []) if size_word(w["text"], sizes)]
                 if not sz and words:
                     # a one-letter size OCR dropped: the ink under the Size column, read on its own
-                    bw = im.point(lambda px: 255 if px > THRESH else 0)
+                    bw = page_bw(im)
                     box = {"x0": rcols["size"] - 22, "x1": rcols["size"] + 22, "y0": min(w["y0"] for w in words),
                            "y1": max(w["y1"] for w in words)}
                     cx0, cy0 = max(0, int(box["x0"] / SCALE)), max(0, int(box["y0"] / SCALE))
@@ -2003,6 +2003,18 @@ def reread_cell(im, box, expected):
     return vals[0]
 
 
+_BW = {}
+
+
+def page_bw(im):
+    """The page binarised at its threshold, computed once per page (a cell check must not redo the page)."""
+    key = id(im)
+    if key not in _BW:
+        _BW.clear()
+        _BW[key] = im.point(lambda q: 255 if q > THRESH else 0)
+    return _BW[key]
+
+
 def ocr_strip(im, box):
     """Words with boxes (points) from one printed line read on its own at the page threshold."""
     x0, y0 = max(0, int(box["x0"] / SCALE)), max(0, int(box["y0"] / SCALE))
@@ -2045,7 +2057,7 @@ def _store(row, values, spec, section, unit, house_unit, pieces, seen_sizes, ful
         ink_box = {"x0": (px0 + c["x"]) / 2 - 2 if c["x"] - px0 < 80 else px0 + 10,
                    "x1": min(px1 - 6, (c["x"] + px1) / 2 - 2 if px1 - c["x"] < 80 else c["x"] + 130),
                    "y0": row["y0"] - 1, "y1": row["y1"] + 1}
-        inked = im is not None and has_ink(im.point(lambda q: 255 if q > THRESH else 0), ink_box) >= 0.01
+        inked = im is not None and has_ink(page_bw(im), ink_box) >= 0.01
         if inked and (v is None or not plausible(v)) and row.get("limit") is not None:
             if strip is None:
                 strip = ocr_strip(im, {"x0": row["limit"] - 4, "x1": im.width * SCALE, "y0": row["y0"] - 2, "y1": row["y1"] + 2})
