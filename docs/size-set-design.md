@@ -28,7 +28,7 @@ The pack is "brand spec versus supplier report", the shape the coa pack proved, 
 | yongsheng | a Chinese garment factory, spreadsheet printout | points as rows; per size the sub-columns Spec, Act, Diff; A4 landscape | the house unit, unless the item carries `cm_report`, when it prints centimetres and its Spec column is the factory's own conversion |
 | plm | the brand's own PLM-exported measurement form | points as rows with code, name, Tol+, Tol-; sizes as columns with actuals only; Letter | the house unit, fractions |
 | inspect | a third-party inspection company | one block per size, points as rows, pieces as columns; signatures and an INSPECTED stamp; A4 | decimals in the house unit |
-| tablet | a QC app export | one page per size; rows of spec, measured, deviation and a status mark; Letter | the house unit; its status mark is computed with a symmetric tolerance and no rounding, so it is sometimes wrong |
+| tablet | a QC app export | one page per size and piece; rows of spec, measured, deviation and a PASS or FAIL mark; Letter | the house unit; its spec, deviation and status columns lie only where a feature says so |
 
 Each style has its own fonts, date style (ISO, day-month-year, month-day-year), producer metadata and wording for pieces (pc 1, sample A, garment #2) and for re-measurements.
 
@@ -90,4 +90,8 @@ Tops (tee, hoodie, track jacket): body length from HPS, chest 1" below armhole (
 
 ## Pilot log
 
-(empty until the first build)
+- 2026-11-02, build. docforge extracted from the coa renderer into `src/taskfactory/forge/docforge.py` (36 of 41 coa items re-render identical in pixels, text, annotations and fields; the other 5 differ only by the scan noise draw, as run to run). Pack written: 11 rules, 41 features (the design said 36; `fine_print`, `size_order`, `two_pieces`, `extra_pom` and `wrap_name` were split out of broader ones). The planner silently dropped two thirds of the hidden slots because its rule-use penalty pushed every candidate under a fixed score floor; it now takes the best candidate whatever its score.
+- Seed 1: 13 samples, 30 hidden; every feature in a sample, every route and style in the hidden set, every mutant rule deciding 2 to 7 hidden items.
+- Model fixes found by the reference: a centimetre spec drew an eighth-inch precision when `fraction_glyph` was on; centimetre strings lost a decimal. The `fraction_glyph` trap is limited to the digital and distilled routes, where the text layer carries or loses the glyph; OCR of the glyph on a scan was no reading challenge an expert could meet fairly.
+- Reference: the coa page reader (OCR plus text-layer arbitration) unchanged, plus a table walker. What it took to read every report: tokens land on the nearest header label at or right of their left edge (values print left-aligned under centred labels, which breaks any midpoint rule on wide columns); one-letter size labels OCR drops are read back from the ink between labels; a size repeated on a header line is its next piece; glued mixed fractions (`243/16`) split against the spec value; a stamped correction is read inset from its frame and replaces the words under it; a cell that reads empty or implausibly far from the spec is read again, first as a word of the whole row strip, then alone with rule lines and the neighbouring row's edge whitened. Renderer fix found the same way: an annotation box clipped its text.
+- Result: 43 of 43 on seed 1 (build `out/build-set-1c`), slowest item 33 s against the 120 s limit; task assembled at `out/build-set-1c/task/size-set-s1` (18 MB). Holdout seed 1001 and the Sonnet screen running.
