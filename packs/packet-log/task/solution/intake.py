@@ -39,9 +39,21 @@ def read_wav(path: str, channel: int):
     return rate, x - np.mean(x)
 
 
+SAME_FRAME_MS = 200     # the same bytes decoded by two demodulators this close together are one transmission
+
+
 def decode_at(x: np.ndarray, rate: int):
-    bits, ends = bits_with_times(x, rate)
-    return hdlc_frames(bits, ends)
+    """Union of the valid frames found by several demodulators. Each frame is only accepted on a matching FCS,
+    so a frame one demodulator reads and another misses (noise, jitter, clock offset) is still a real frame."""
+    d = slicer(x, rate)
+    found = list(hdlc_frames(*bits_with_times(d, rate)))
+    for alpha in (0.3, 0.15, 0.5):
+        for smooth in (0, 0.5):
+            ds = uniform_filter1d(d, max(1, int(round(rate / BAUD * smooth)))) if smooth else d
+            for fr, t in hdlc_frames(*bits_pll(ds, rate, alpha)):
+                if not any(fr == f and abs(t - u) <= SAME_FRAME_MS for f, u in found):
+                    found.append((fr, t))
+    return found
 
 
 def best_decode(x: np.ndarray, header_rate: int):
@@ -66,16 +78,56 @@ def envelope(x, rate, f, win):
     return np.hypot(i, q)
 
 
-def bits_with_times(x: np.ndarray, rate: int):
-    """NRZI bits and, for each, the time in ms at which its bit period ends."""
+def slicer(x: np.ndarray, rate: int):
+    """Mark minus space tone level, each tone normalised by its own recent peak (twist, fading)."""
     bl = rate / BAUD
     win = max(3, int(round(bl)))
     m = envelope(x, rate, MARK, win)
     s = envelope(x, rate, SPACE, win)
-    agc = max(1, int(rate * 0.06))                 # each tone normalised by its own recent peak (twist, fading)
+    agc = max(1, int(rate * 0.06))
     m = m / (maximum_filter1d(m, agc) + 1e-9)
     s = s / (maximum_filter1d(s, agc) + 1e-9)
-    d = m - s
+    return m - s
+
+
+def bits_pll(d: np.ndarray, rate: int, alpha: float):
+    """NRZI bits sampled at bit centres from a clock that tracks the tone transitions (a phase-locked loop on
+    the edge grid), and for each bit the time in ms at which its period ends. Unlike counting the spacing of two
+    raw transitions, an edge's jitter does not carry into the next bit count, and a brief glitch between bit
+    centres is not sampled."""
+    bl = rate / BAUD
+    sign = d >= 0
+    a = np.flatnonzero(sign[1:] != sign[:-1])      # crossing between a and a+1
+    if len(a) < 2:
+        return [], []
+    da, db = d[a], d[a + 1]
+    tau = a + da / np.where(da - db == 0, 1e-12, da - db)
+    centres = []
+    edge = tau[0]
+    for t in tau[1:]:
+        k = int(round((t - edge) / bl))
+        if k <= 0:
+            edge += alpha * (t - edge)
+            continue
+        if k > 64:                                  # long silence or noise: restart the clock on this edge
+            edge = t
+            continue
+        centres.extend(edge + (j + 0.5) * bl for j in range(k))
+        grid = edge + k * bl
+        edge = grid + alpha * (t - grid)
+    if len(centres) < 2:
+        return [], []
+    c = np.asarray(centres)
+    ci = np.clip(np.round(c).astype(np.int64), 0, len(d) - 1)
+    sv = sign[ci]
+    bits = (sv[1:] == sv[:-1]).astype(np.int8).tolist()
+    ends = ((c[1:] + bl / 2) / rate * 1000.0).tolist()
+    return bits, ends
+
+
+def bits_with_times(d: np.ndarray, rate: int):
+    """NRZI bits and, for each, the time in ms at which its bit period ends."""
+    bl = rate / BAUD
     sign = np.where(d >= 0, 1, -1)
     idx = np.flatnonzero(np.diff(sign) != 0) + 1
     bits, ends = [], []
