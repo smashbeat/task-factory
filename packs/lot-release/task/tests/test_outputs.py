@@ -10,7 +10,7 @@ import pytest
 import compare
 
 TEST_DIR = Path(__file__).resolve().parent
-OUT_DIR = Path(os.environ.get("INTAKE_OUT", "/tmp/intake/out"))
+OUT_DIR = Path(os.environ.get("INTAKE_OUT", "/tmp/intake/meta"))   # root-only: nothing the tool could write
 DOCS = sorted(p.name[:-len(".pkg")] for p in (TEST_DIR / "hidden").glob("*.pkg") if p.is_dir())
 
 
@@ -21,7 +21,7 @@ def _make(doc):
         st = json.loads(run.read_text())
         assert st.get("returncode") == 0, f"tool exited {st.get('returncode')} ({st.get('note', '')})"
         out = OUT_DIR / f"{doc}.json"
-        assert out.exists(), "OUT.json not written"
+        assert out.exists() and not out.is_symlink() and out.is_file(), "OUT.json not written"
         diffs = compare.compare_files(out, TEST_DIR / "truth" / f"{doc}.truth.json")
         assert not diffs, "\n".join(diffs[:15])
     name = f"test_{doc}"
