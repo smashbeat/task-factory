@@ -956,8 +956,9 @@ def _name_files(p: Package):
         k = 1
         while True:
             name = pattern.format(supplier=SUPPLIER_SHORT[doc["supplier"]], slug=_slug(doc["cert"].material[0]), k=k)
-            if name not in taken:
-                taken.add(name)
+            stem = name.rsplit(".", 1)[0]          # no two files share a stem, whatever their extensions
+            if stem not in taken:
+                taken.add(stem)
                 return name
             k += 1
 
