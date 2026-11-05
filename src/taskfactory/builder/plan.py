@@ -162,9 +162,15 @@ def make_plan(pack: Domain, seed: int, attempt: int = 0) -> Plan:
             route_ok = lambda r, aim=aim: r == aim
         fits = [x for x in names if route_ok is None or any(route_ok(r) for r in pack.feature(x).routes)]
         best, best_score = None, float("-inf")   # the best candidate is taken whatever its score
+        unused = [x for x in fits if not f_use[x]]
         for _ in range(80):
             least = sorted(fits, key=lambda x: (f_use[x], rng.random()))
-            want = [least[0]] if rng.random() < 0.7 else [rng.choice(fits)]
+            if len(unused) >= left:
+                # coverage emergency: every item still to come must carry features no hidden item has yet, two
+                # when there are more of them than items; a pack with many features reaches this tail
+                want = least[:2] if len(unused) > left else [least[0]]
+            else:
+                want = [least[0]] if rng.random() < 0.7 else [rng.choice(fits)]
             it = _candidate(
                 pack, rng, want,
                 routes_w=lambda r: 12.0 if not r_use[r] else 1.0 / (1 + r_use[r]),

@@ -18,8 +18,8 @@ from taskfactory.forge.coa_doc import *  # noqa: F403  the certificate model, ca
 
 def draw_header(pen, c: Cert, continued=False, revision=None):
     h = c.house
-    k = c.house_key
-    title = "CERTIFICATE OF ANALYSIS"
+    k = h.get("layout", c.house_key)           # a house of another pack lays itself out like one of the four
+    title = h.get("title_caps", "CERTIFICATE OF ANALYSIS")
     if revision:
         title += f", REVISION {revision}"
     elif continued:
@@ -43,7 +43,7 @@ def draw_header(pen, c: Cert, continued=False, revision=None):
     else:
         pen.text(54, h["name"], 13, bold=True); pen.y += 12
         pen.text(54, h["address"], 8.5); pen.y += 22
-        pen.text(54, ("Certificate of Analysis / QC Release" if not (continued or revision) else title.title()),
+        pen.text(54, (h.get("title", "Certificate of Analysis / QC Release") if not (continued or revision) else title.title()),
                  12, bold=True); pen.y += 8
         pen.line(54, pen.w - 54, width=0.5); pen.y += 18
 
@@ -207,8 +207,9 @@ def amendment_block(pen, c):
 
 def draw_footer(pen, c):
     pen.y += 16
-    signer = {"hengxin": "QA Manager: Li Wei", "nordvik": "Approved: Kari Solberg, Quality Assurance",
-              "pradesh": "Checked by: QC Officer        Approved by: QA Head", "bluewater": "Released by: QC Release"}[c.house_key]
+    signer = c.house.get("signer") or {
+        "hengxin": "QA Manager: Li Wei", "nordvik": "Approved: Kari Solberg, Quality Assurance",
+        "pradesh": "Checked by: QC Officer        Approved by: QA Head", "bluewater": "Released by: QC Release"}[c.house_key]
     pen.text(54, signer, 9); pen.y += 12
     pen.text(54, "This certificate was generated electronically and is valid without signature.", 7.5)
 
@@ -380,13 +381,17 @@ def build_form(c: Cert, path, mismatch):
             pdf.save(path)
 
 
-def produce(c: Cert, path, rnd):
-    """Render the certificate through its production route. Returns notes for the manifest."""
+def produce(c: Cert, path, rnd, pre=None, dpi=300):
+    """Render the certificate through its production route. Returns notes for the manifest. `pre`, when given,
+    draws on every page before the content (a pack's own overlay, such as a VOID stamp); the certificate's own
+    watermark and stamps draw after it. `dpi` is the scan routes' resolution."""
     route = c.route
     h = c.house
     td = tempfile.mkdtemp()
     base = os.path.join(td, "base.pdf")
-    variant = {"revisions": c.revision_style} if c.revisions else {}
+    variant = {"revisions": getattr(c, "revision_style", "block")} if c.revisions else {}
+    if pre is not None:
+        variant["pre"] = pre
     note = route
     if "continuation" in c.features:
         variant["split"] = True
@@ -395,7 +400,11 @@ def produce(c: Cert, path, rnd):
     if "scramble" in c.features:
         variant["scramble"] = True
     if "watermark" in c.features:
-        def pre(pen):
+        prev0 = variant.get("pre")
+
+        def pre(pen, prev0=prev0):
+            if prev0:
+                prev0(pen)
             pen.c.saveState()
             pen.c.setFillColorRGB(0.86, 0.86, 0.86)
             pen.c.setFont(h["font"] + "-Bold", 120)
@@ -458,7 +467,7 @@ def produce(c: Cert, path, rnd):
         render(wrong, wbase, variant)
         return wbase
 
-    finish(route, base, path, rnd, h["meta"], c.house["size"], wrong_base)
+    finish(route, base, path, rnd, h["meta"], c.house["size"], wrong_base, dpi=dpi)
     if route == "scan_wrong_ocr":
         note += ": OCR layer read from altered values; the image is right"
     if "annot_correction" in c.features:

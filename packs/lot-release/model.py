@@ -113,8 +113,10 @@ SUPPLIER_MAIL = {"hengxin": "qc@hengxin-nutrition.example", "nordvik": "qa@nordv
 
 
 def _lab(base, **kw):
-    """The manufacturer's own laboratory as a certificate house: the coa drawing with the house's words."""
-    h = dict(SUPPLIERS[base])
+    """The manufacturer's own laboratory as a certificate house: the coa drawing laid out like `base`, with the
+    house's own words, names and metadata."""
+    h = dict(SUPPLIERS[base], layout=base, signer="Released by: QC Release", title="Finished Product Test Report",
+             title_caps="FINISHED PRODUCT TEST REPORT")
     h.update(kw)
     return h
 
@@ -157,7 +159,7 @@ STYLES = {
         lot_fmt="KB-26{n:04d}", lot_word="Batch", sku_fmt="KB{initials}{servings}",
         wb=dict(creator="LibreOffice/7.6.4.1$Linux_X86_64 LibreOffice_project/", sheets=("Batch Record",), totals=True,
                 status_col=False, qty_fmt={"kg": "0.000", "g": "0.000", "mg": "0"}),
-        csv=dict(total_label="Total", gross=False),
+        csv=dict(total_label="Total", gross=True),
         lab=_lab("nordvik", key="lab-kestrel", name="Kestrel Botanicals Quality Control",
                  address="Unit 4, Whitehall Industrial Estate, Leeds LS12 5JB, United Kingdom", font="DejaVuSerif", size=A4,
                  date_style="dmy", lot_label="Batch", mfg_label="Manufactured", retest_label="Retest", expiry_label="Expiry",
@@ -607,8 +609,13 @@ def apply_features(p: Package):
             if r["stored"] is None:
                 r["stored"] = r["qty_printed"]
     if "text_number" in f:
-        ing = _pick_ing(p, used)
-        r = ing["rows"][0]
+        # the largest quantity, in a unit that gives it a thousands separator
+        ing, r = max(((i, x) for i in p.ingredients for x in i["rows"] if not x["void"]), key=lambda t: t[1]["qty_printed"])
+        if r["qty_printed"] < 1000 and r["printed_unit"] in ("kg", "g"):
+            r["printed_unit"] = {"kg": "g", "g": "mg"}[r["printed_unit"]]
+            r["qty_printed"] = convert_mass(r["qty"], ing["pb_unit"], r["printed_unit"])
+            r["stored"] = r["qty_printed"]
+            r["fmt"] = _base_fmt_for(p, ing, r["printed_unit"])
         whole, _, frac = fmt(r["qty_printed"]).partition(".")
         r["text"] = f"{int(whole):,}" + (f".{frac}" if frac else "")
     if "hidden_row" in f:
@@ -742,9 +749,11 @@ def apply_features(p: Package):
         if rnd.random() < 0.72 or "eml_forwarded" in f or "eml_body_lies" in f:
             _email(p, d)
     if "eml_forwarded" in f:
-        cand = [i for i, e in enumerate(p.emails) if e["reply_of"] is None and e["forward_of"] is None and e["attachments"]]
+        # a message somebody replied to stays a file of its own; the forward wraps another one (a reply will do)
+        replied = {e["reply_of"] for e in p.emails if e["reply_of"] is not None}
+        cand = [i for i, e in enumerate(p.emails) if e["forward_of"] is None and e["attachments"] and i not in replied]
         if cand:
-            inner = cand[0]
+            inner = cand[-1]
             p.emails[inner]["embedded"] = True
             _email(p, [p.certs[j] for j in p.emails[inner]["attachments"]], forward_of=inner)
             for j in p.emails[inner]["attachments"]:
@@ -887,6 +896,16 @@ def apply_features(p: Package):
     return p
 
 
+def _base_fmt_for(p: Package, ing, unit: str) -> str:
+    """The number format a quantity in `unit` takes in this style's workbook."""
+    f = p.style["wb"]["qty_fmt"][unit]
+    if unit == "kg" and ing["pb_unit"] == "g":
+        f = "0.000000"
+    if unit == "mg":
+        f = "#,##0" if ing["pb_unit"] == "kg" else "#,##0.0"
+    return f
+
+
 def _fail_a_result(cert):
     """Turn one numeric result of the first lot into a failing one, as the coa `fail` feature does."""
     lot = cert.lots[0]
@@ -931,19 +950,25 @@ def _name_files(p: Package):
     p.label["name"] = st["files"]["label"].format(sku=sku, rev=p.label_rev, lot=lot_in_name)
     if p.fp["present"]:
         p.fp["name"] = st["files"]["report"].format(lot=lot_in_name)
-    counters: dict[str, int] = {}
+    taken: set[str] = set()
+
+    def unique(pattern, doc):
+        k = 1
+        while True:
+            name = pattern.format(supplier=SUPPLIER_SHORT[doc["supplier"]], slug=_slug(doc["cert"].material[0]), k=k)
+            if name not in taken:
+                taken.add(name)
+                return name
+            k += 1
+
     for d in sorted(p.certs, key=lambda d: d["k"]):
-        key = d["supplier"]
-        counters[key] = counters.get(key, 0) + 1
         if d["email"] is None:
-            d["name"] = st["files"]["cert"].format(supplier=SUPPLIER_SHORT[key], slug=_slug(d["cert"].material[0]), k=counters[key])
+            d["name"] = unique(st["files"]["cert"], d)
     for e in p.emails:
         if e["embedded"]:
             continue
         docs = [p.certs[i] for i in e["attachments"]] or [p.certs[i] for i in p.emails[e["forward_of"]]["attachments"]]
-        key = docs[0]["supplier"]
-        counters[key] = counters.get(key, 0) + 1
-        e["name"] = st["files"]["email"].format(supplier=SUPPLIER_SHORT[key], slug=_slug(docs[0]["cert"].material[0]), k=counters[key])
+        e["name"] = unique(st["files"]["email"], docs[0])
 
 
 def min_units(features: set) -> int:
