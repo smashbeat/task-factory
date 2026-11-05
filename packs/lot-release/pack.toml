@@ -1,0 +1,359 @@
+# lot-release domain pack. Rules and features are data; the policy, the sample plan and the attribution
+# profile are all produced from this file.
+
+[pack]
+name = "lot-release"
+item = "package"
+unit = "ingredient"
+module = "pack"
+ext = "pkg"
+seconds = 300
+scan_dpi = 200
+samples_max = 18
+hidden = 30
+units_max = 4
+# difficulty: features per hidden package, and the least share of hidden packages with several ingredients
+# and on a reading route
+hidden_features = [4, 6]
+hidden_several = 0.7
+hidden_reading = 0.6
+styles = ["sierra", "meridian", "kestrel"]
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated", "form", "form_mismatch"]
+# routes whose PDF pages must be read from pixels or reconstructed text
+reading_routes = ["outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+route_rules = { form_mismatch = [2], scan_wrong_ocr = [2], scan_rotated = [2] }
+
+[[rule]]
+id = 1
+title = "Scope and documents"
+text = """One package covers the release of one lot of one finished product. The package is a folder holding the batch record (a workbook), the packing record (a CSV file), the label proof (a PDF), the finished-product test report (a PDF) and one supplier certificate of analysis (a PDF) for each supplier lot the batch record lists as dispensed; a certificate is either a file of its own or an attachment of an email file (.eml), and a certificate may report several lots. A document's kind is read from its content; file names carry no meaning. An email's attachments are documents; its subject and body are aids. A certificate for a lot the batch record does not list as dispensed, an email without an attachment, and any other extra file are ignored. The product master (SPEC.json) gives the formula with each ingredient's code, material, label name, per-serving and per-batch amounts, dispensing tolerance, approved suppliers, allergens and house tests, the finished product's release tests, the shelf life in months, the batch size in units and the minimum yield."""
+mutant = false
+
+[[rule]]
+id = 2
+title = "What a value is"
+text = """PDF: a value is what a reader sees on the printed page, read upright. Everything else in the file is an aid to reading, and where it disagrees with the print, the print is right. Everything that prints is part of the page, and a correction placed visibly over a printed value replaces it. Workbook: a cell's value is its stored value shown with the cell's number format, rounded half up (a stored 12.4999 with the format `0.00` is 12.50); a date cell's value is its stored date; a text cell is read as written, thousands separators dropped; no cell holds a formula; hidden rows, columns and sheets are part of the record; the sheet's own totals and check marks are aids, and VOID and SUPERSEDED marks are read by rule 7. CSV: the text as written, with the delimiter the header line uses; numbers follow the file's habit, a comma delimiter with dot decimals and comma thousands separators, or a semicolon delimiter with comma decimals and dot thousands separators; a CSV carries no void mark. Email: the attachment is the document; its date is the Date header of the message part it is attached to (rule 7); subjects and bodies are aids. Dates anywhere outside a workbook date cell are ISO 8601 or carry an English month name; the output writes every date as ISO 8601 (YYYY-MM-DD)."""
+mutant = false
+
+[[rule]]
+id = 3
+title = "Identity"
+text = """From the batch record: `product` as given, `lot` as given without its label, `manufactured_on` (the stored date, written as ISO 8601) and `yield` (the units produced, an integer). Wherever another document gives the lot, it must match the batch record's under the rule 12 comparison."""
+mutant = false
+
+[[rule]]
+id = 4
+title = "Dispensing"
+text = """For each formula ingredient, the dispensing sheet lists, per row, the formula code, the material as the master names it, the supplier's full name, the supplier lot and the quantity dispensed, from one or more lots, on one sheet or continued on a second. Rows of the same supplier lot (a split weighing, or a continuation) are one lot, ordered by their first row, sheets in tab order. Each row's quantity is converted to the per-batch unit (1 kg = 1 000 g = 1 000 000 mg; the unit is the one in the quantity's cell, its column header or the sheet's unit note) and rounded half up to the per-batch amount's decimal places; a lot's quantity is the sum of its rounded rows, and the ingredient's dispensed quantity the sum of its lots. It is within tolerance when `|dispensed - required| <= required x tolerance_pct / 100`, inclusive, after rounding. Otherwise the finding is `quantity:CODE`; an ingredient the sheet does not list at all gives `ingredient_missing:CODE`."""
+mutant = true
+
+[[rule]]
+id = 5
+title = "Certificates"
+text = """Each dispensed supplier lot needs, in the package, a certificate that counts for it: issued by the row's supplier, for the row's material (both names under the rule 12 comparison), reporting the row's lot (lot numbers under rule 12). The row's supplier must be among the ingredient's `approved_suppliers` (name under the rule 12 comparison), else `supplier_unapproved:CODE:LOT`. No certificate gives `certificate_missing:CODE:LOT`. A certificate's values are read by the certificate rules: one row per test printed for the lot, each with the test name, the result and the unit as printed (a value that wraps onto a second line is one value; a mark that ties a value to a note is not part of it); a certificate may carry numbered revisions of some values in an amendment block or on a revision page, and each field and result takes its value from the highest-numbered revision that states it; a printed test matches a house test when its name equals one of the house test's names under the rule 12 comparison; a numeric result is a decimal number in the unit printed with it, or in the house unit when none is printed, converted to the house unit with 1 ppm = 1 mg/kg = 1 ug/g, 1 ppb = 1 ug/kg = 0.001 ppm, 1 % = 10 000 ppm, then rounded half up to the decimal places the house limit is written with, and a result in a unit the table cannot convert counts as no result; a numeric result meets `max` when at most the limit, `min` when at least, `range` when within both ends; a "less than" result (`<x`) meets a `max` limit when x, converted and rounded, is at most the limit, and meets no `min` or `range` limit; a result of ND, Not detected, <LOQ or BLQ counts as "less than" the limit of quantitation the certificate prints for that test, and as no result when it prints none; a `conforms` limit is met by a result that, ignoring case, starts with "conform" or "compl" or is "pass" or "passes"; an `absent` limit is met by a result that starts with "absent", "not detected", "nd" or "negative"; a `report` limit is met by any result. Evaluated against the ingredient's `tests`, a result that does not meet its limit gives `certificate_fail:CODE:LOT`, and a house test with no result gives `certificate_incomplete:CODE:LOT`. Every check runs on every lot: an unapproved supplier's certificate is still evaluated, and all its findings are listed. The certificate's own specification column and pass marks are aids."""
+mutant = true
+
+[[rule]]
+id = 6
+title = "Dates"
+text = """A supplier lot is usable when the certificate's retest or expiry date, revisions applied, is on or after `manufactured_on`; otherwise `certificate_expired:CODE:LOT`. The product's expiry, `expires_on`, is `manufactured_on` plus `shelf_life_months`, same day of the month, or the last day of that month when the day does not exist."""
+mutant = true
+
+[[rule]]
+id = 7
+title = "Supersession"
+text = """A certificate that came by email is dated by the Date header of the message part it is attached to; for a certificate inside a forwarded message, that is the forwarded message's own header. When two certificates in the package report the same supplier lot of the same material, both came by email, and the later-dated one stands while the other is ignored; time zones count, so the later instant wins; a certificate that is a file of its own is never one of such a pair. A workbook sheet is void when its title or its first cell contains VOID or SUPERSEDED; a row is void when one of its cells reads VOID or SUPERSEDED; a certificate with a page stamped VOID is void as a whole; void sheets, rows and certificates are ignored. When the label proof carries a revision table (columns revision, field, value; a field is the lot, the expiry or an ingredient's label name), the highest revision's value stands for its field."""
+mutant = true
+
+[[rule]]
+id = 8
+title = "Label"
+text = """The label proof must print the product name, the lot, `expires_on`, and for each formula ingredient, under its `label_name` (matched under the rule 12 comparison), a per-serving amount equal to the formula's after conversion (1 g = 1 000 mg = 1 000 000 mcg), and an allergen statement naming exactly the allergens of the formula's ingredients, and none when there are none. Findings: `label_lot` when the printed lot differs, `label_expiry` when the printed expiry differs, `label_amount:CODE` when an ingredient's amount is wrong or absent, `label_allergen` when the statement does not match. The output's `label` gives the lot and the expiry as the label states them, revisions applied."""
+mutant = true
+
+[[rule]]
+id = 9
+title = "Finished-product report"
+text = """The house laboratory's test report for this lot (its lot must match under rule 12; a report for another lot counts as none) is evaluated like a certificate (rule 5) against `release_tests`: `finished` is `fail` when a result does not meet its limit, else `incomplete` when a release test has no result, else `ok`; it is `missing` when the package holds no report for the lot. Any value but `ok` is also the finding `finished_fail`, `finished_incomplete` or `finished_missing`."""
+mutant = true
+
+[[rule]]
+id = 10
+title = "Packing and yield"
+text = """The packing record has one line per pallet, each with cases, units per case and loose units; the packed units are the sum over the lines of cases x units per case plus loose units, and a total line, when present, is an aid. The packed units must equal `yield` (`packing_units`); the packing record's lot and expiry must match (`packing_lot`, `packing_expiry`); `yield` must be at least `min_yield_pct` percent of `batch_size_units` (`yield_low`)."""
+mutant = true
+
+[[rule]]
+id = 11
+title = "Decision"
+text = """`rejected` when any finding is `certificate_fail`, `certificate_expired`, `supplier_unapproved` or `finished_fail`; otherwise `hold` when there is any finding; otherwise `released`."""
+mutant = true
+
+[[rule]]
+id = 12
+title = "Output"
+text = """One JSON object with exactly the keys `product`, `lot`, `manufactured_on`, `expires_on`, `yield`, `ingredients`, `label`, `finished`, `packing`, `findings`, `decision`. `ingredients` holds one object per supplier lot dispensed, in formula order and, within an ingredient, in the order the dispensing sheet lists its lots, with exactly the keys `code`, `supplier` (as the sheet gives it), `lot` (as the sheet gives it), `dispensed` (the lot's quantity in the per-batch unit, as a number or a decimal string) and `certificate` (`ok`, `missing`, `fail`, `incomplete`, `expired` or `unapproved`; when several apply to one lot, the first of `missing`, `unapproved`, `expired`, `fail`, `incomplete`); an ingredient the sheet does not list gets one object with `supplier`, `lot` and `dispensed` null and `certificate` `missing`. `label` has exactly `lot` and `expiry`; `packing` has exactly `units`, the packed units as an integer. `findings` is the list of finding codes, sorted as strings, each code at most once. Strings compare after Unicode NFKC normalisation, case folding and removal of all whitespace; lot numbers compare after hyphens are also removed; `dispensed`, `yield` and `units` compare as exact numbers."""
+mutant = false
+
+# Features. rules: the policy rules an item with this feature exercises. says: what an agent that breaks them does.
+# routes: where the feature can be drawn (default: every route). units: most ingredients it allows;
+# units_min: fewest it needs. requires_any / excludes as in the coa pack. kind = "reading" marks a feature that
+# only makes a file harder to read.
+
+[[feature]]
+name = "extra_certificate"
+rules = [1]
+says = "counted a certificate for a lot that was not dispensed"
+
+[[feature]]
+name = "coa_two_lots"
+rules = [1, 5]
+says = "took the wrong lot from a certificate that reports two"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "eml_two_attachments"
+rules = [1]
+says = "read one attachment of an email that carries two certificates"
+units_min = 2
+
+[[feature]]
+name = "eml_forwarded"
+rules = [1, 7]
+says = "missed the certificate inside a forwarded message"
+
+[[feature]]
+name = "member_scan"
+rules = [2]
+says = "could not read a scanned certificate inside a digital package"
+kind = "reading"
+routes = ["digital", "distilled", "outlined", "form", "form_mismatch"]
+
+[[feature]]
+name = "member_outlined"
+rules = [2]
+says = "could not read an outlined certificate inside a digital package"
+kind = "reading"
+routes = ["digital", "distilled", "form", "form_mismatch"]
+
+[[feature]]
+name = "label_outlined"
+rules = [2]
+says = "could not read the label proof with its fonts converted to outlines"
+kind = "reading"
+
+[[feature]]
+name = "stamp_lot"
+rules = [2, 5]
+says = "missed a certificate's lot number printed only in a stamp"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "annot_correction"
+rules = [2]
+says = "kept the printed value under a visible correction"
+routes = ["digital"]
+excludes = ["member_scan", "member_outlined"]
+
+[[feature]]
+name = "watermark"
+rules = [2]
+says = "read a certificate's watermark into a value"
+kind = "reading"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "cell_format"
+rules = [2, 4]
+says = "read a cell's stored number instead of what its format shows"
+excludes = ["qty_tolerance"]
+
+[[feature]]
+name = "total_lies"
+rules = [2, 10]
+says = "trusted a totals row or a total line"
+
+[[feature]]
+name = "hidden_row"
+rules = [2, 4]
+says = "skipped a dispensing row hidden by a filter"
+units_min = 2
+
+[[feature]]
+name = "text_number"
+rules = [2, 4]
+says = "could not read a quantity stored as text with thousands separators"
+
+[[feature]]
+name = "eml_body_lies"
+rules = [2]
+says = "took a lot or a result from the email's body instead of its attachment"
+
+[[feature]]
+name = "lot_hyphen"
+rules = [3, 12]
+says = "did not match a lot given with and without its hyphen"
+
+[[feature]]
+name = "qty_unit"
+rules = [4]
+says = "took the dispensed quantity as if in the per-batch unit"
+
+[[feature]]
+name = "two_lots_dispensed"
+rules = [4, 5, 12]
+says = "did not sum an ingredient dispensed from two lots, or lost one of its certificates"
+
+[[feature]]
+name = "qty_tolerance"
+rules = [4]
+says = "misjudged a quantity on the tolerance or one unit past it"
+
+[[feature]]
+name = "ingredient_missing"
+rules = [4, 11, 12]
+says = "did not report an ingredient the dispensing sheet never lists"
+units_min = 2
+
+[[feature]]
+name = "two_sheets"
+rules = [1, 4]
+says = "missed the dispensing rows continued on a second sheet"
+units_min = 2
+
+[[feature]]
+name = "coa_missing"
+rules = [5, 11]
+says = "accepted a lot with no certificate in the package"
+
+[[feature]]
+name = "unapproved_supplier"
+rules = [5, 11]
+says = "accepted a lot from a supplier not on the approved list"
+
+[[feature]]
+name = "coa_fail"
+rules = [5, 11]
+says = "accepted a certificate with a failing result"
+
+[[feature]]
+name = "coa_incomplete"
+rules = [5, 11]
+says = "accepted a certificate that lacks a house test"
+
+[[feature]]
+name = "coa_conversion"
+rules = [5]
+says = "compared a certificate result without converting its unit or reading the LOQ"
+
+[[feature]]
+name = "coa_revision"
+rules = [5, 7]
+says = "kept a certificate's original value instead of its revision"
+routes = ["digital", "distilled", "outlined", "scan_ocr", "scan_wrong_ocr", "scan_no_ocr", "scan_rotated"]
+
+[[feature]]
+name = "coa_expired"
+rules = [6, 11]
+says = "accepted a lot past its retest date, or refused one dated the manufacturing day"
+
+[[feature]]
+name = "expiry_month_end"
+rules = [6]
+says = "computed the expiry past the end of a short month"
+
+[[feature]]
+name = "label_expiry_wrong"
+rules = [6, 8]
+says = "accepted a label expiry that does not match"
+
+[[feature]]
+name = "eml_reply_supersedes"
+rules = [7, 11]
+says = "took the superseded certificate instead of the one in the reply"
+
+[[feature]]
+name = "void_document"
+rules = [7]
+says = "read a voided sheet, row or certificate"
+
+[[feature]]
+name = "label_revision"
+rules = [7, 8]
+says = "ignored the label's revision table"
+
+[[feature]]
+name = "label_mcg"
+rules = [8]
+says = "flagged a label amount printed in micrograms"
+
+[[feature]]
+name = "label_amount"
+rules = [8, 11]
+says = "accepted a wrong or missing label amount"
+
+[[feature]]
+name = "allergen_wrong"
+rules = [8, 11]
+says = "accepted an allergen statement that does not match the formula"
+
+[[feature]]
+name = "lot_mismatch"
+rules = [3, 8, 10, 11]
+says = "accepted a label or a packing record that gives another lot"
+
+[[feature]]
+name = "fp_fail"
+rules = [9, 11]
+says = "accepted a failing finished-product report"
+excludes = ["fp_incomplete", "fp_missing"]
+
+[[feature]]
+name = "fp_incomplete"
+rules = [9, 11]
+says = "accepted a finished-product report that lacks a release test"
+excludes = ["fp_missing"]
+
+[[feature]]
+name = "fp_missing"
+rules = [9, 11]
+says = "accepted a package with no report for the lot"
+
+[[feature]]
+name = "packing_math"
+rules = [10]
+says = "could not add the pallets without a total line"
+
+[[feature]]
+name = "packing_mismatch"
+rules = [10, 11]
+says = "accepted packed units that differ from the yield"
+
+[[feature]]
+name = "csv_semicolon"
+rules = [2, 10]
+says = "misread a semicolon CSV with decimal commas"
+kind = "reading"
+
+[[feature]]
+name = "yield_low"
+rules = [10, 11]
+says = "released a lot below the minimum yield"
+
+[[feature]]
+name = "reject_and_hold"
+rules = [11]
+says = "held a lot that a finding rejects"
+
+[[feature]]
+name = "clean"
+rules = [11]
+says = "found something wrong with a package that has nothing wrong"
+excludes = ["ingredient_missing", "qty_tolerance", "coa_missing", "unapproved_supplier", "coa_fail", "coa_incomplete",
+            "coa_expired", "label_expiry_wrong", "eml_reply_supersedes", "label_amount", "allergen_wrong", "lot_mismatch",
+            "fp_fail", "fp_incomplete", "fp_missing", "packing_mismatch", "yield_low", "reject_and_hold"]
+
+[images]
+# Built from the pack: gen draws the files, ref has exactly the task environment's software.
+gen = "gen-env"
+ref = "ref-env"

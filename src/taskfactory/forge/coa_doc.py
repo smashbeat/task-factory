@@ -91,6 +91,12 @@ def disposition(spec, lot, off=frozenset()):
     d = lot["retest_date"] or lot["expiry_date"]
     if d and 8 not in off and dt.date.fromisoformat(d) <= received:
         return "reject"
+    return {"fail": "reject", "incomplete": "incomplete", "ok": "accept"}[results_status(spec, lot, off)]
+
+
+def results_status(spec, lot, off=frozenset()):
+    """The results alone, no date: `fail` when a house test's result does not meet its limit, else `incomplete`
+    when a house test has no result, else `ok`. lot: truth lot plus '_loq' {row index: (value, unit)}."""
     failing = missing = False
     for test in spec["tests"]:
         names = {norm(n) for n in test["names"]}
@@ -107,7 +113,7 @@ def disposition(spec, lot, off=frozenset()):
             missing = True
         elif not ok:
             failing = True
-    return "reject" if failing else "incomplete" if missing else "accept"
+    return "fail" if failing else "incomplete" if missing else "ok"
 
 
 # ------------------------------------------------------------------ catalogue
@@ -236,10 +242,11 @@ class Cert:
     """Everything that is printed, and the truth derived from it."""
 
     def __init__(self, cid, house, rnd, n_lots, features, route, *, houses=None, catalogue=None,
-                 material=None, lot_numbers=None, received=None):
+                 material=None, lot_numbers=None, received=None, tests=None):
         """`house` is a key into `houses` (the coa houses by default) or a house dict of its own; `catalogue` is
-        the test list (the raw-material one by default). `material`, `lot_numbers` and `received` override the
-        random draws, which still happen in the same order, so a default call draws as it always did."""
+        the test list (the raw-material one by default). `material`, `lot_numbers`, `received` and `tests` (test
+        names from the catalogue) override the random draws, which still happen in the same order, so a default
+        call draws as it always did."""
         houses = HOUSES if houses is None else houses
         catalogue = TESTS if catalogue is None else catalogue
         by_name = {t[0]: t for t in catalogue}
@@ -267,6 +274,8 @@ class Cert:
         rest = [n for n in names if n not in must]
         chosen = set(must + rnd.sample(rest, min(len(rest), max(0, rnd.randint(7, 10) - len(must)))))
         self.tests = [by_name[n] for n in names if n in chosen]
+        if tests is not None:
+            self.tests = [by_name[n] for n in tests]
         self.spec = {"material": self.material[0], "received": self.received.isoformat(),
                      "tests": [{"names": [t[0]] + t[1], "limit": {"type": t[2], **t[3]}, "unit": t[4]}
                                for t in self.tests]}
@@ -295,6 +304,15 @@ class Cert:
     # truth -------------------------------------------------------
     def truth(self, off=frozenset()):
         out = {"lots": []}
+        for entry in self.entries(off):
+            entry["disposition"] = disposition(self.spec, entry, off)
+            del entry["_loq"]
+            out["lots"].append(entry)
+        return out
+
+    def entries(self, off=frozenset()):
+        """One truth entry per lot, each still carrying `_loq` {row index: (value, unit)} and no disposition."""
+        out = []
         for li, lot in enumerate(self.lots):
             lot = copy.deepcopy(lot)
             if 3 in off and li == 0 and "stamp_retest" in self.features:
@@ -320,14 +338,11 @@ class Cert:
             for note in self.notes:
                 if note.get("loq_for") is not None and note["lot"] in (None, li):
                     loq[note["loq_for"]] = note["loq"]
-            entry = {"material": self.material[0], "supplier": self.house["name"],
-                     "lot_number": lot["lot_number"], "manufacture_date": lot["mfg"].isoformat(),
-                     "retest_date": lot["retest"].isoformat() if lot["retest"] else None,
-                     "expiry_date": lot["expiry"].isoformat() if lot["expiry"] else None,
-                     "results": rows, "_loq": loq}
-            entry["disposition"] = disposition(self.spec, entry, off)
-            del entry["_loq"]
-            out["lots"].append(entry)
+            out.append({"material": self.material[0], "supplier": self.house["name"],
+                        "lot_number": lot["lot_number"], "manufacture_date": lot["mfg"].isoformat(),
+                        "retest_date": lot["retest"].isoformat() if lot["retest"] else None,
+                        "expiry_date": lot["expiry"].isoformat() if lot["expiry"] else None,
+                        "results": rows, "_loq": loq})
         return out
 
 
