@@ -183,7 +183,7 @@ def _fix_until_pass(run: BuildRun, pack: Domain, train: list[Path], candidate: P
                 (d / "reference.json").write_text("[]")
                 run.log.append({"stage": "reference", "attempt": attempt, "status": "fail", "send_back": None,
                                 "findings": [{"level": "fail", "text": f"reference could not run on {d.name}: {e}"}]})
-            g = reference_gate(d)
+            g = reference_gate(d, limit=pack.seconds)
             if d != train[0]:
                 g.findings.insert(0, Finding("info", f"on {d.name}"))
             _record(run, "reference", attempt, g)
@@ -240,7 +240,7 @@ def _holdout(run: BuildRun, pack: Domain, out: Path, candidate: Path, rnd: int =
         run.log.append({"stage": "holdout", "attempt": rnd, "status": "fail", "send_back": None,
                         "findings": [{"level": "fail", "text": f"holdout could not run: {e}"}]})
         return hold
-    g = reference_gate(hold)
+    g = reference_gate(hold, limit=pack.seconds)
     g.gate = "holdout"
     rs = json.loads((hold / "reference.json").read_text())
     m = json.loads((hold / "manifest.json").read_text())

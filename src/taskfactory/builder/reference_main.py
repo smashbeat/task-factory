@@ -1,7 +1,8 @@
 """Runs inside the task's environment image: the reference solution on every item. No answers are mounted.
 
-python3 -I reference_main.py SOLUTION_FILE INPUT_DIR OUT_DIR [WORKERS] [EXT]
-INPUT_DIR holds ID.EXT (pdf by default) and ID.spec.json (read-only); OUT_DIR receives ID.json and ID.run.json.
+python3 -I reference_main.py SOLUTION_FILE INPUT_DIR OUT_DIR [WORKERS] [EXT] [LIMIT]
+INPUT_DIR holds ID.EXT (pdf by default; a folder when the pack says so) and ID.spec.json (read-only); OUT_DIR
+receives ID.json and ID.run.json. LIMIT is the verifier's seconds per item (120 by default).
 Scoring happens outside the container, so the solution never has the truth within reach.
 """
 from __future__ import annotations
@@ -34,10 +35,11 @@ def _one(args: tuple[str, float]) -> dict:
 
 
 def main() -> None:
-    global SOL, IN, OUT, EXT
+    global SOL, IN, OUT, EXT, LIMIT
     SOL, IN, OUT = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
     workers = int(sys.argv[4]) if len(sys.argv) > 4 else 4
     EXT = sys.argv[5] if len(sys.argv) > 5 else "pdf"
+    LIMIT = int(sys.argv[6]) if len(sys.argv) > 6 else 120
     ids = sorted(p.stem for p in IN.glob(f"*.{EXT}"))
     with Pool(workers) as pool:
         runs = pool.map(_one, [(i, PARALLEL_CAP) for i in ids])

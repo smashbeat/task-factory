@@ -14,6 +14,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from .items import copy_item
 from .pack import Domain
 
 REFERENCE_PROMPT = """You maintain the reference solution of a benchmark task. It is `intake.py` in this directory.
@@ -78,7 +79,7 @@ def make_workspace(pack: Domain, builds: Path | list[Path], attempt: int,
             i, n = r["id"], prefix + r["id"]
             d = ws / ("passing" if r["ok"] else "failing")
             d.mkdir(exist_ok=True)
-            shutil.copy(build / pack.ext / f"{i}.{pack.ext}", d / f"{n}.{pack.ext}")
+            copy_item(build / pack.ext / f"{i}.{pack.ext}", d / f"{n}.{pack.ext}")
             shutil.copy(build / "specs" / f"{i}.json", d / f"{n}.spec.json")
             shutil.copy(build / "truth" / f"{i}.json", d / f"{n}.expected.json")
             if not r["ok"]:
@@ -87,8 +88,9 @@ def make_workspace(pack: Domain, builds: Path | list[Path], attempt: int,
     return ws, failing
 
 
-def fix_reference(pack: Domain, build: Path | list[Path], image: str, attempt: int, limit: int = 120,
+def fix_reference(pack: Domain, build: Path | list[Path], image: str, attempt: int, limit: int | None = None,
                   model: str | None = None, budget_usd: float = 5.0, start: Path | None = None) -> dict:
+    limit = limit or pack.seconds
     builds = [Path(build)] if isinstance(build, (str, Path)) else [Path(b) for b in build]
     ws, failing = make_workspace(pack, builds, attempt, start)
     checker = Path(tempfile.mkdtemp(prefix=f"tf-checker-{attempt}-"))

@@ -190,10 +190,11 @@ def replace_page_images(path, images):
         pdf.save(path)
 
 
-def finish(route, base, path, rnd, meta, size, wrong_base=None):
+def finish(route, base, path, rnd, meta, size, wrong_base=None, dpi=300):
     """Produce `path` from the clean `base` PDF through `route`. `meta` is the house's producer metadata and
     `size` its page size. For scan_wrong_ocr, `wrong_base()` is called once the page seeds are drawn and returns
-    a base PDF with altered values: the OCR layer is read from it while the page images stay right."""
+    a base PDF with altered values: the OCR layer is read from it while the page images stay right. `dpi` is the
+    scan routes' resolution."""
     td = tempfile.mkdtemp()
     if route == "digital":
         shutil.copy(base, path)
@@ -205,7 +206,7 @@ def finish(route, base, path, rnd, meta, size, wrong_base=None):
         subprocess.run(["gs", "-q", "-o", path, "-sDEVICE=pdfwrite", "-dNoOutputFonts", base], check=True)
         set_meta(path, {"Creator": "Adobe Illustrator 27.0 (Windows)"})
     elif route in SCAN_ROUTES:
-        raws = rasterize(base)
+        raws = rasterize(base, dpi)
         seeds = [rnd.random() for _ in raws]
         pages = [scan_sim(im, random.Random(sd)) for im, sd in zip(raws, seeds)]
         if route == "scan_rotated":
@@ -219,7 +220,7 @@ def finish(route, base, path, rnd, meta, size, wrong_base=None):
         else:
             if route == "scan_wrong_ocr":
                 wbase = wrong_base()
-                ocr_src = [scan_sim(im, random.Random(sd)) for im, sd in zip(rasterize(wbase), seeds)]
+                ocr_src = [scan_sim(im, random.Random(sd)) for im, sd in zip(rasterize(wbase, dpi), seeds)]
             else:
                 ocr_src = pages
             img = os.path.join(td, "img.pdf")

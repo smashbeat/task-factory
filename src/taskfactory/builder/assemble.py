@@ -11,6 +11,7 @@ import shutil
 import uuid
 from pathlib import Path
 
+from .items import copy_item
 from .pack import Domain
 
 CANARY = re.compile(r"harbor-canary GUID [0-9a-f-]{36}")
@@ -28,11 +29,11 @@ def assemble(pack: Domain, build: Path, task: Path, name: str) -> Path:
         d.mkdir(parents=True, exist_ok=True)
     ext = pack.ext
     for i in m["samples"]:
-        shutil.copy(build / ext / f"{i['id']}.{ext}", samples / f"{i['id']}.{ext}")
+        copy_item(build / ext / f"{i['id']}.{ext}", samples / f"{i['id']}.{ext}")
         shutil.copy(build / "specs" / f"{i['id']}.json", samples / f"{i['id']}.spec.json")
         shutil.copy(build / "truth" / f"{i['id']}.json", samples / f"{i['id']}.expected.json")
     for i in m["hidden"]:
-        shutil.copy(build / ext / f"{i['id']}.{ext}", hidden / f"{i['id']}.{ext}")
+        copy_item(build / ext / f"{i['id']}.{ext}", hidden / f"{i['id']}.{ext}")
         shutil.copy(build / "specs" / f"{i['id']}.json", hidden / f"{i['id']}.spec.json")
         shutil.copy(build / "truth" / f"{i['id']}.json", truth / f"{i['id']}.truth.json")
     shutil.copy(build / "policy.md", task / "environment" / "policy.md")

@@ -11,6 +11,7 @@ from multiprocessing import Pool
 from pathlib import Path
 
 sys.path.insert(0, "/tf/src")
+from taskfactory.builder.items import item_size  # noqa: E402
 from taskfactory.builder.pack import load_domain  # noqa: E402
 
 PACK = BUILD = None
@@ -28,7 +29,7 @@ def _one(entry: dict) -> dict:
         return {"id": entry["id"], "error": f"{type(e).__name__}: {e}"}
     want = json.loads((BUILD / "truth" / f"{entry['id']}.json").read_text())
     got = json.loads(json.dumps(pack.module.truth(item), ensure_ascii=False))
-    return {"id": entry["id"], "note": note, "truth_unchanged": got == want, "bytes": path.stat().st_size}
+    return {"id": entry["id"], "note": note, "truth_unchanged": got == want, "bytes": item_size(path)}
 
 
 def main() -> None:

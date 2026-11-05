@@ -4,9 +4,10 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from .items import copy_item
 from .pack import Domain
 
-SRC = Path(__file__).resolve().parents[2]
+SRC =Path(__file__).resolve().parents[2]
 
 
 def image(pack: Domain, key: str) -> str:
@@ -58,12 +59,12 @@ def reference(pack: Domain, build: Path, solution: Path | None = None, workers: 
         out.chmod(0o777)
         shutil.copy(solution, sol / "intake.py")
         for item in (build / pack.ext).glob(f"*.{pack.ext}"):
-            shutil.copy(item, inp / item.name)
+            copy_item(item, inp / item.name)
             shutil.copy(build / "specs" / f"{item.stem}.json", inp / f"{item.stem}.spec.json")
         cmd = ["docker", "run", "--rm", "--network", "none",
                "-v", f"{SRC}:/tf/src:ro", "-v", f"{sol}:/sol:ro", "-v", f"{inp}:/in:ro", "-v", f"{out}:/out",
                image(pack, "ref"), "python3", "-I", "/tf/src/taskfactory/builder/reference_main.py",
-               "/sol/intake.py", "/in", "/out", str(workers), pack.ext]
+               "/sol/intake.py", "/in", "/out", str(workers), pack.ext, str(pack.seconds)]
         subprocess.run(cmd, capture_output=True, text=True, timeout=7200, check=True)
         spec = importlib.util.spec_from_file_location("tf_compare", pack.root / "task" / "tests" / "compare.py")
         compare = importlib.util.module_from_spec(spec)

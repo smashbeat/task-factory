@@ -49,7 +49,9 @@ class Domain:
     hidden_features: tuple[int, int] = (1, 1)
     hidden_several: float = 0.0
     hidden_reading: float = 0.0
-    ext: str = "pdf"            # the item file's extension: what the renderer writes and the tool reads
+    ext: str = "pdf"            # the item's extension: a file (`pdf`) or a folder (`pkg`) the renderer writes and the tool reads
+    seconds: int = 120          # the verifier's time limit per item
+    scan_dpi: int = 300         # the resolution the scan routes rasterise at
     extra: dict = field(default_factory=dict)
 
     def rule(self, rid: int) -> Rule:
@@ -115,5 +117,7 @@ def load_domain(root: Path) -> Domain:
         hidden_several=p.get("hidden_several", 0.0),
         hidden_reading=p.get("hidden_reading", 0.0),
         ext=p.get("ext", "pdf"),
+        seconds=int(p.get("seconds", 120)),
+        scan_dpi=int(p.get("scan_dpi", 300)),
         extra={k: v for k, v in d.items() if k not in ("pack", "rule", "feature")},
     )
