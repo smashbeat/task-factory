@@ -21,7 +21,9 @@ from taskfactory.forge.office import Sheet, write_csv, write_eml, write_xlsx
 from model import *  # noqa: F403  the package model, catalogue and helpers
 from model import _slug  # noqa: F401  underscore names do not travel with the star
 
-SCAN_DPI = 200
+import tomllib as _tomllib
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pack.toml"), "rb") as _f:
+    SCAN_DPI = int(_tomllib.load(_f)["pack"].get("scan_dpi", 300))   # the pack's declared scan resolution
 DATE_FMT = {"iso": "yyyy-mm-dd", "dmy": "dd-mmm-yyyy", "mdy": "mmmm d, yyyy"}
 CSV_HEADERS = {
     "sierra": ["Lot", "Expiry", "Pallet", "Cases", "Units per Case", "Loose Units", "Gross kg", "Packed On", "Total Units"],
