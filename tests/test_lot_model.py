@@ -15,8 +15,7 @@ from taskfactory.builder.plan import make_plan
 
 ROOT = Path(__file__).parent.parent
 PACK = ROOT / "packs" / "lot-release"
-sys.path.insert(0, str(PACK))
-import model  # noqa: E402
+model = load_domain(PACK).module.model   # through the loader, so this pack's `model` wins over another pack's
 
 
 def _package(seed=11, style="sierra", units=3, features=(), route="digital"):
