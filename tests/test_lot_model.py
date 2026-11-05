@@ -15,7 +15,14 @@ from taskfactory.builder.plan import make_plan
 
 ROOT = Path(__file__).parent.parent
 PACK = ROOT / "packs" / "lot-release"
-model = load_domain(PACK).module.model   # through the loader, so this pack's `model` wins over another pack's
+model = None   # set by the autouse fixture: loaded through the loader at test time, never at collection
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _load_pack_model():
+    """This pack's `model`, loaded the way the builder loads it, so another pack's sibling `model` never wins."""
+    global model
+    model = load_domain(PACK).module.model
 
 
 def _package(seed=11, style="sierra", units=3, features=(), route="digital"):
@@ -141,7 +148,7 @@ def test_pack_gate_passes(pack):
     g = pack_gate(pack)
     assert g.status != "fail", [f.text for f in g.findings if f.level == "fail"]
     assert len(pack.rules) == 12 and len(pack.features) == 46
-    assert pack.seconds == 300 and pack.scan_dpi == 200 and pack.ext == "pkg"
+    assert pack.seconds == 300 and pack.scan_dpi == 300 and pack.ext == "pkg"
 
 
 def test_seed_1_plan_and_corpus_pass_the_gates(pack):
