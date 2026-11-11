@@ -1,6 +1,6 @@
 # Next task families: proposal
 
-Written 2026-11-01, after coa-intake reached the bar (Codex 0 of 3, Opus 0 of 3). Five candidate families were researched in parallel; the raw reports with a URL per claim are in the session scratchpad (`research-signals.md`, `research-geometry.md`, `research-inbox.md`, `research-wire.md`, `research-novelty.md`).
+Written 2026-11-01, after coa-intake reached the bar (Codex 0 of 3, Opus 0 of 3). Five candidate families were researched in parallel; the raw reports with a URL per claim were working notes and are not in the repository.
 
 ## 1. What beat the models, stated so it can be reused
 
@@ -92,6 +92,6 @@ Pilot **signals** now: a `packet-log` pack (AFSK 1200, AX.25/APRS) with sigforge
 
 Run **plot digitization** as the second pilot in parallel if time allows; it shares the scan route and the image-reading verification already built for coa-intake.
 
-Build **geometry** third, with Alex writing the shop rules, since the research found no open Fanuc or Haas simulator and the dialect traps are exactly the ones a machinist knows.
+Build **geometry** third, with me writing the shop rules, since the research found no open Fanuc or Haas simulator and the dialect traps are exactly the ones a machinist knows.
 
 Keep **wire formats** and **inbox** as the volume families once the forge plugin exists.

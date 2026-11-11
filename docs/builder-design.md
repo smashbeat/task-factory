@@ -46,7 +46,7 @@ Each gate returns a typed verdict: `pass`, `warn` or `fail(back_to, evidence, fi
 - **Deterministic gates** state the fix themselves, for example "feature stamp_retest is in no sample: add it to the sample plan".
 - **Model-written fixes** go to an authoring agent with the evidence, and that stage reruns.
 - **Retry limit:** two retries per stage. After that the task stops and a person decides.
-- **Paid stages:** stages 5 to 8 spend real agent time and run only with `--trials` and Alex's go-ahead.
+- **Paid stages:** stages 5 to 8 spend real agent time and run only with `--trials` and my go-ahead.
 
 ## Build order
 

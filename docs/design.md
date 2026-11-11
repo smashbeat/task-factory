@@ -1,6 +1,6 @@
 # Quality, difficulty, fairness: a gated task factory
 
-Follow-up to the Klavis call. Three properties came up: the quality of a task, its difficulty, and its fairness. This note says how to assure each one, how to build tasks fast with a generator, and how to check the three properties at gates during the build, so a bad task dies early and cheaply instead of after a full round of frontier trials.
+Three properties decide whether an agent benchmark task is worth shipping: the quality of the task, its difficulty, and its fairness. This note says how to assure each one, how to build tasks fast with a generator, and how to check the three properties at gates during the build, so a bad task dies early and cheaply instead of after a full round of frontier trials.
 
 Everything marked **seen** happened in my own runs. Everything else is a proposal.
 

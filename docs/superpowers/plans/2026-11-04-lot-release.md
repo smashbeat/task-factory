@@ -19,7 +19,7 @@
 ### Task 2: the certificate library
 - Create `src/taskfactory/forge/coa_doc.py` from `packs/coa/model.py` (catalogue, houses, `evaluate`, `disposition`, `Cert`, `apply_features`, helpers) and `src/taskfactory/forge/coa_draw.py` from `packs/coa/render.py` (`render`, `build_form`, `produce`, `render_item`), importing `coa_doc` by its package name. `Cert.__init__(cid, house, rnd, n_lots, features, route, *, houses=HOUSES, catalogue=TESTS, material=None, lot_numbers=None, received=None)`: `house` is a key into `houses` or a house dict; the random draws happen in the same order as today and the keyword values override afterwards, so the rng stream of a default call is unchanged. `packs/coa/model.py` becomes `from taskfactory.forge.coa_doc import *` plus the underscore names the coa tests use; `packs/coa/render.py` becomes `from taskfactory.forge.coa_draw import *`.
 - Interfaces produced: `coa_doc.Cert(...)`, `coa_doc.MATERIALS`, `coa_doc.TESTS`, `coa_doc.HOUSES`, `coa_doc.evaluate`, `coa_doc.supplier_spec`, `coa_draw.render_item(cert, path, rng)`, `coa_draw.produce(cert, path, rng)`.
-- Test: `tests/test_coa_model.py`, `tests/test_coa_render.py` and the golden `tests/golden/coa-seed1` pass unchanged; new `tests/test_coa_doc.py`: a `Cert` built with `material`, `lot_numbers` and `received` reports them in `truth()`, and a default `Cert` built twice from the same rng seed gives the same truth as before the move (the golden). Proof on documents: `docker.render` of build 1k's manifest into `out/build-coa-1k-lib`, then `pdf_fingerprint.py` and `pdf_blockdiff.py` from the session scratchpad against `out/build-coa-1k`: text, annotations and form fields identical on all 41; pixels identical except scan-noise draws under one gray level.
+- Test: `tests/test_coa_model.py`, `tests/test_coa_render.py` and the golden `tests/golden/coa-seed1` pass unchanged; new `tests/test_coa_doc.py`: a `Cert` built with `material`, `lot_numbers` and `received` reports them in `truth()`, and a default `Cert` built twice from the same rng seed gives the same truth as before the move (the golden). Proof on documents: `docker.render` of build 1k's manifest into `out/build-coa-1k-lib`, then two throwaway comparison scripts (a fingerprint and a block diff, not kept) against `out/build-coa-1k`: text, annotations and form fields identical on all 41; pixels identical except scan-noise draws under one gray level.
 - Commit.
 
 ### Task 3: the office writers
@@ -46,5 +46,5 @@
 
 ### Task 7: build and screen
 - `taskfactory build packs/lot-release --seed 1 --out out/build-lot-1 --docker --fix`, a new out folder per attempt, holdouts at 90%; iterate on the reference with a cached harness as for size-set when the fix loop does not converge.
-- Check the task directory's size against the Terminal-Bench guidance in `~/Projects/klavis-tb3/tb3-main/docs` before assembling.
-- Harbor from a fresh `out/harbor-lot-1`: oracle, nop, Sonnet 5.5 at a 2 h cap. Attribute every miss. Pilot log in the design doc; commit. Frontier trials wait for Alex.
+- Check the task directory's size against the Terminal-Bench task guidance before assembling.
+- Harbor from a fresh `out/harbor-lot-1`: oracle, nop, Sonnet 5.5 at a 2 h cap. Attribute every miss. Pilot log in the design doc; commit. Frontier trials wait for my go-ahead.

@@ -1,6 +1,6 @@
 # Signals pilot: feasibility spike (2026-11-01)
 
-Image: `debian:trixie-slim` + direwolf, minimodem, multimon-ng, sox, ebook2cw, python3-numpy, python3-scipy. Builds clean; tag `tf-sigspike:latest`. Dockerfile and scripts in the session scratchpad (`sigspike/`).
+Image: `debian:trixie-slim` + direwolf, minimodem, multimon-ng, sox, ebook2cw, python3-numpy, python3-scipy. Builds clean; tag `tf-sigspike:latest`. Dockerfile and scripts were a throwaway spike and are not in the repository.
 
 Generator path works: `gen_packets -o clean.wav -r 44100 -a 50 packets.txt` encodes TNC2 lines to AFSK 1200 AX.25 audio; sox applies the degradations; `atest -B 1200` (direwolf) decodes and is the cross-check for the truth. Count frames with `grep -c 'DECODED\['` (lines carry ANSI colour codes). Noise is mixed with `sox -r 44100 -n noise.wav synth DUR whitenoise vol V` then `sox -m`.
 
