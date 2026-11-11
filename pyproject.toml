@@ -1,9 +1,15 @@
 [project]
 name = "taskfactory"
 version = "0.1.0"
-description = "Gates for agent benchmark tasks: quality, difficulty and fairness, checked on evidence"
+description = "A generator and a gated pipeline for agent benchmark tasks: documents in, rules decide, every failure attributed"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+  "pymupdf>=1.26",
+  "pillow>=11",
+  "numpy>=2",
+  "openpyxl>=3.1",
+  "pytesseract>=0.3",
+]
 
 [project.scripts]
 taskfactory = "taskfactory.cli:main"

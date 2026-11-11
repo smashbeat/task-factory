@@ -1,0 +1,16 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv venv -p 3.13 && uv pip install -e '.[dev]'
+      - run: uv run pytest -q
+        # The render, reader and holdout tests need the packs' Docker images and skip here.
