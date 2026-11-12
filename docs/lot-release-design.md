@@ -130,7 +130,7 @@ The reviewer's own defaults, adopted: display rounding at the format is half up;
 
 ## Pilot log
 
-Built 2026-11-04 and 2026-11-05 from the plan in `docs/superpowers/plans/2026-11-04-lot-release.md`; the ledger with every ruling is in `.superpowers/sdd/2026-11-04-lot-release/progress.md`.
+Built 2026-11-04 and 2026-11-05 from the plan in `docs/plans/2026-11-04-lot-release.md`; the ledger with every ruling is in `.superpowers/sdd/2026-11-04-lot-release/progress.md`.
 
 - **Builder.** Items may be folders (`ext = "pkg"`); a pack sets `seconds` (the verifier's limit per item) and `scan_dpi`. The certificate model and drawing left the coa pack for `src/taskfactory/forge/coa_doc.py` and `coa_draw.py`, with constructor keywords for a house dict, another catalogue, a given material, lot numbers, receipt date and test list, a date-free results verdict, and an overlay hook; the coa pack keeps shims. Proof: coa build 1k re-rendered, 36 of 41 documents byte-identical, the 5 scan routes differ by noise only (largest block difference 0.49 gray levels). Office writers for workbook, CSV and email in `forge/office.py`. The hidden planner gained a coverage emergency: when the features no hidden item has yet are at least as many as the items left, the next item takes one or two of them; coa and size-set plans are unchanged (golden intact).
 - **Pack.** 12 rules, 46 features, 3 manufacturer sets, 18 samples, 30 hidden, 300 s per package, scans at 300 dpi (the design's 200 dpi lost a decimal point in a scanned result, h26 of seed 1). Seed 1 plan, spec and corpus gates pass at the first attempt; so do seeds 2 to 4.

@@ -1,5 +1,7 @@
 # Task Factory
 
+[![tests](https://github.com/smashbeat/task-factory/actions/workflows/tests.yml/badge.svg)](https://github.com/smashbeat/task-factory/actions/workflows/tests.yml)
+
 A generator and a gated pipeline for benchmark tasks that test coding agents on document work.
 
 A task here is a folder of messy business documents and a written policy, graded against an exact answer key. The agent has to build a tool that reads the documents and applies the rules, item by item, with nothing left to interpretation. The factory writes the documents from a seeded model of the domain, computes the answer key from that model and never from a page, checks the task at every stage of its build, and records why each strong agent failed it.
@@ -17,6 +19,17 @@ Three packs reached the bar I set: Claude Code on Opus 5.5 and Codex on GPT-6.1 
 A trial is one agent session under the task's own time cap, and its score is the number of hidden items the tool got exactly right. A pass is 30 of 30. Every miss was replayed offline from the agent's saved program and traced to a numbered rule in the policy or to a page the program misread. The pilot logs in `docs/` hold that attribution item by item. A fourth pack, radio packet captures, was dropped when a cheaper model passed its screen.
 
 The runs cost about $2 per Codex trial and, by Harbor's estimate, between $10 and $50 of subscription usage per Opus trial.
+
+## What the agent sees
+
+![A finished product report, scanned, with the text layer drawn beside it: the page says 2.2, the layer says 6.6](docs/images/layer-lies.png)
+
+The page on the left is what a reader sees. On the right, every word the PDF's text layer holds, drawn at its own position. The layer was planted: loss on drying reads 2.2 on the page and 6.6 in the layer, the fill weight 500 and 388. A tool that trusts the text layer rejects a good batch. The policy says the printed page is the truth.
+
+| | |
+|---|---|
+| ![A certificate that reports two lots on one page](docs/images/two-lots.png) | ![A certificate whose lot number exists only as a stamp](docs/images/stamped-lot.png) ![A voided certificate on a scan](docs/images/void-stamp.png) |
+| One certificate, two lots, each with its own table. The batch used the second one. This page beat every run of every agent. | A lot number that exists only as a stamp, and a VOID stamp on a scan that voids the whole certificate. Both read fine to a person. |
 
 ## What makes a task hard without being unfair
 
